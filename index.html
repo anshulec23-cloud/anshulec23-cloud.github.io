@@ -3,128 +3,162 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anshul — BLITZcomm</title>
-<meta name="description" content="Write-ups from five systems: industrial control security, video anomaly detection, image forensics, cyber-risk quantification, and offline tactical routing.">
-<meta property="og:title" content="Anshul — BLITZcomm">
-<meta property="og:description" content="Industrial security, computer vision and embedded systems. Project write-ups and source.">
+<title>Anshul — systems that hold under attack</title>
+<meta name="description" content="Industrial control security, computer-vision forensics and embedded systems. Five projects, each with a working console you can operate in the browser.">
+<meta name="theme-color" content="#0b0d0c">
+<meta property="og:title" content="Anshul — BERGG">
+<meta property="og:description" content="Five systems you can operate from the page: ICS enforcement, video anomaly detection, image forensics, cyber-risk quantification, offline routing.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://bergg.me/">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0d0c'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23f2a33c' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 
-<header class="topbar">
+<header class="rail">
   <div class="wrap">
-    <a class="brand" href="/">BERGG</a>
-    <nav class="navlinks">
-      <a href="#work">Work</a>
+    <a class="rail-brand" href="/">BERGG</a>
+    <nav class="rail-nav">
+      <a href="#systems" aria-current="true">Systems</a>
       <a href="#stack">Stack</a>
-      <a href="https://github.com/anshulec23-cloud">GitHub</a>
+      <a href="https://github.com/anshulec23-cloud">Source</a>
     </nav>
+    <div class="rail-status">
+      <span class="utc num" data-utc>--:--:--</span>
+      <span class="lamp on" aria-hidden="true"></span>
+      <span>NOMINAL</span>
+    </div>
   </div>
 </header>
 
 <main>
 
-<div class="wrap hero">
-  <p class="eyebrow">Anshul &nbsp;/&nbsp; Final-year ECE &nbsp;/&nbsp; Mangalore, India</p>
-  <h1>Systems built to hold when something is actively trying to break them.</h1>
-  <p>Industrial control security, computer-vision forensics and embedded tooling. Every project below has a write-up: the problem it addresses, how the system actually works, and where it stops.</p>
-  <div class="meta">
-    <span>B.E. Electronics &amp; Communication</span>
-    <span>ICS / OT security</span>
-    <span>Computer vision</span>
-    <span>Embedded &amp; edge</span>
+<section class="wrap plate">
+  <p class="plate-id">Anshul · Final-year ECE · Mangalore IN</p>
+  <h1>Five systems you can <em>operate</em> from this page.</h1>
+  <p class="plate-sub">Industrial control security, computer-vision forensics and embedded tooling. Each project below carries a working console that runs the same decision logic as the system it describes — and a write-up that says plainly where that system stops.</p>
+
+  <dl class="strip">
+    <div><dt>Discipline</dt><dd>B.E. Electronics &amp; Communication</dd></div>
+    <div><dt>Domains</dt><dd>ICS/OT · Computer vision · Edge</dd></div>
+    <div><dt>Location</dt><dd>Mangalore, India</dd></div>
+    <div><dt>Index</dt><dd>5 systems · 5 consoles</dd></div>
+  </dl>
+</section>
+
+<section class="wrap sec" id="systems">
+  <div class="sec-head">
+    <span class="tag">A</span>
+    <h2>Selected systems</h2>
   </div>
-</div>
 
-<section id="work" class="wrap">
-  <p class="label">Selected work</p>
-  <div class="idx">
+  <div class="rack">
 
-    <div class="idx-row">
-      <a class="cover" href="projects/aegis-ics.html" aria-label="Aegis ICS write-up"></a>
-      <div class="idx-num">01</div>
+    <div class="unit">
+      <a class="unit-link" href="/projects/aegis-ics.html" aria-label="Open Aegis ICS"></a>
+      <div class="unit-no">UNIT 01</div>
       <div>
-        <h2 class="idx-title">Aegis ICS</h2>
-        <p class="idx-desc">A zero-trust gateway that sits inline between field devices and the control network, tests supervisory setpoints against physical stability limits, and de-energises a relay in 12.74&nbsp;ms when a command would be unsafe.</p>
+        <h3>Aegis ICS</h3>
+        <p>A zero-trust gateway that sits inline between field devices and the control network, tests every supervisory setpoint against a physical stability envelope, and cuts a relay when a command would push the process somewhere it cannot return from.</p>
       </div>
-      <div class="idx-tags">Python · Flask · ESP32<br>Random Forest · PyWebView</div>
-      <div class="idx-arrow">&rarr;</div>
+      <dl class="unit-read">
+        <div><dt>Enforce</dt><dd>12.74 <span>ms</span></dd></div>
+        <div><dt>ROC-AUC</dt><dd>0.9755</dd></div>
+        <div><dt>Policy</dt><dd>96.08 <span>%</span></dd></div>
+      </dl>
+      <div class="unit-go" aria-hidden="true">→</div>
     </div>
 
-    <div class="idx-row">
-      <a class="cover" href="projects/sentinel.html" aria-label="Sentinel write-up"></a>
-      <div class="idx-num">02</div>
+    <div class="unit">
+      <a class="unit-link" href="/projects/sentinel.html" aria-label="Open Sentinel"></a>
+      <div class="unit-no">UNIT 02</div>
       <div>
-        <h2 class="idx-title">Sentinel</h2>
-        <p class="idx-desc">Real-time video anomaly detection. YOLOv8 finds people, DeepSORT holds their identity across frames, and an LSTM autoencoder flags motion it was never trained to reconstruct.</p>
+        <h3>Sentinel</h3>
+        <p>Video anomaly detection trained only on ordinary movement. YOLOv8 finds people, DeepSORT keeps their identity across frames, and an LSTM autoencoder flags the motion it cannot reconstruct.</p>
       </div>
-      <div class="idx-tags">PyTorch · YOLOv8<br>DeepSORT · FastAPI</div>
-      <div class="idx-arrow">&rarr;</div>
+      <dl class="unit-read">
+        <div><dt>Detect</dt><dd>25+ <span>fps</span></dd></div>
+        <div><dt>Features</dt><dd>9 <span>dim</span></dd></div>
+        <div><dt>Labels</dt><dd>4</dd></div>
+      </dl>
+      <div class="unit-go" aria-hidden="true">→</div>
     </div>
 
-    <div class="idx-row">
-      <a class="cover" href="projects/image-forgery-detection.html" aria-label="Image Forgery Detector write-up"></a>
-      <div class="idx-num">03</div>
+    <div class="unit">
+      <a class="unit-link" href="/projects/image-forgery-detection.html" aria-label="Open Image Forgery Detector"></a>
+      <div class="unit-no">UNIT 03</div>
       <div>
-        <h2 class="idx-title">Image Forgery Detector</h2>
-        <p class="idx-desc">Document screening that reads compression residue rather than pixels. Two ResNet18 streams — raw RGB and Error Level Analysis — fuse into one verdict, with Grad-CAM showing where the evidence sits.</p>
+        <h3>Image Forgery Detector</h3>
+        <p>Document screening that reads compression history instead of content. Two ResNet18 streams — raw pixels and error level analysis — fuse into one verdict, with Grad-CAM showing where the evidence sits.</p>
       </div>
-      <div class="idx-tags">PyTorch · ResNet18<br>Grad-CAM · Streamlit</div>
-      <div class="idx-arrow">&rarr;</div>
+      <dl class="unit-read">
+        <div><dt>Streams</dt><dd>2</dd></div>
+        <div><dt>Classes</dt><dd>3</dd></div>
+        <div><dt>Backbone</dt><dd>ResNet18</dd></div>
+      </dl>
+      <div class="unit-go" aria-hidden="true">→</div>
     </div>
 
-    <div class="idx-row">
-      <a class="cover" href="projects/cyberrisk.html" aria-label="CyberRisk write-up"></a>
-      <div class="idx-num">04</div>
+    <div class="unit">
+      <a class="unit-link" href="/projects/cyberrisk.html" aria-label="Open CyberRisk Platform"></a>
+      <div class="unit-no">UNIT 04</div>
       <div>
-        <h2 class="idx-title">CyberRisk Platform</h2>
-        <p class="idx-desc">Five agents in a LangGraph pipeline take an MQTT telemetry stream, decide whether an industrial device is under attack, isolate it, and price the incident in downtime, SLA penalties and regulatory exposure.</p>
+        <h3>CyberRisk Platform</h3>
+        <p>Five agents in a LangGraph pipeline take an MQTT telemetry stream, decide whether an industrial device is under attack, isolate it, and price the incident in downtime, SLA penalties and regulatory exposure.</p>
       </div>
-      <div class="idx-tags">LangGraph · FastAPI<br>MQTT · React</div>
-      <div class="idx-arrow">&rarr;</div>
+      <dl class="unit-read">
+        <div><dt>Agents</dt><dd>5</dd></div>
+        <div><dt>Report</dt><dd>NIST 800-61</dd></div>
+        <div><dt>Trigger</dt><dd>0.65</dd></div>
+      </dl>
+      <div class="unit-go" aria-hidden="true">→</div>
     </div>
 
-    <div class="idx-row">
-      <a class="cover" href="projects/tactical-recon.html" aria-label="BERGG Tactical Recon write-up"></a>
-      <div class="idx-num">05</div>
+    <div class="unit">
+      <a class="unit-link" href="/projects/tactical-recon.html" aria-label="Open BERGG Tactical Recon"></a>
+      <div class="unit-no">UNIT 05</div>
       <div>
-        <h2 class="idx-title">BERGG Tactical Recon</h2>
-        <p class="idx-desc">An offline-first navigation console. Valhalla routes locally from pre-loaded tiles, OSRM catches anything outside them, and the map overlays local wireless telemetry onto the computed route.</p>
+        <h3>BERGG Tactical Recon</h3>
+        <p>An offline-first navigation console. Valhalla routes locally from pre-loaded tiles, OSRM catches anything outside them, and the map sweeps the computed route rather than a circle around a pin.</p>
       </div>
-      <div class="idx-tags">Valhalla · OSRM<br>JavaScript · Docker</div>
-      <div class="idx-arrow">&rarr;</div>
+      <dl class="unit-read">
+        <div><dt>Engines</dt><dd>2</dd></div>
+        <div><dt>Fallback</dt><dd>AUTO</dd></div>
+        <div><dt>Offline</dt><dd>YES</dd></div>
+      </dl>
+      <div class="unit-go" aria-hidden="true">→</div>
     </div>
 
   </div>
 </section>
 
-<section id="stack" class="wrap">
-  <p class="label">Working stack</p>
-  <ul class="facts">
-    <li><b>Languages</b><span>Python, JavaScript, C/C++ (ESP32), SQL</span></li>
-    <li><b>ML</b><span>PyTorch, scikit-learn, YOLOv8, Grad-CAM, LSTM autoencoders, Random Forest</span></li>
-    <li><b>Backend</b><span>FastAPI, Flask, WebSockets, MQTT (Mosquitto), SQLite / Postgres</span></li>
-    <li><b>Edge</b><span>ESP32 firmware, serial / fieldbus framing, HMAC-SHA256 signing, X25519 key exchange</span></li>
-    <li><b>Tooling</b><span>Docker Compose, GitHub Actions, pytest, pre-commit</span></li>
-  </ul>
-  <div class="btnrow">
-    <a class="btn" href="https://github.com/anshulec23-cloud">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-      All repositories
-    </a>
+<section class="wrap sec" id="stack">
+  <div class="sec-head">
+    <span class="tag">B</span>
+    <h2>Working stack</h2>
   </div>
+  <dl class="meas">
+    <div><dt>Languages</dt><dd>Python · JavaScript · C/C++ on ESP32 · SQL</dd></div>
+    <div><dt>Learning</dt><dd>PyTorch · scikit-learn · YOLOv8 · LSTM autoencoders · Grad-CAM</dd></div>
+    <div><dt>Services</dt><dd>FastAPI · Flask · WebSockets · MQTT / Mosquitto · SQLite / Postgres</dd></div>
+    <div><dt>Edge</dt><dd>ESP32 firmware · fieldbus framing · HMAC-SHA256 · X25519 + HKDF</dd></div>
+    <div><dt>Operations</dt><dd>Docker Compose · GitHub Actions · pytest · pre-commit</dd></div>
+  </dl>
 </section>
 
 </main>
 
-<footer class="site">
+<footer class="foot">
   <div class="wrap">
     <span>bergg.me</span>
-    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+    <span class="spacer"></span>
+    <a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a>
   </div>
 </footer>
 
+<script src="/assets/console.js" defer></script>
 </body>
 </html>

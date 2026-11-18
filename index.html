@@ -3,51 +3,128 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BLITZcomm</title>
-<style>
-:root { color-scheme: dark; }
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0d1117;
-  color: #e6edf3;
-  font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  padding: 24px;
-}
-main { text-align: center; max-width: 34rem; }
-h1 { margin: 0 0 .5rem; font-size: clamp(2rem, 7vw, 3rem); letter-spacing: -0.02em; }
-p { margin: 0 0 2rem; color: #9198a1; line-height: 1.6; }
-a.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: .6rem;
-  padding: .8rem 1.4rem;
-  border: 1px solid #30363d;
-  border-radius: 8px;
-  background: #161b22;
-  color: #e6edf3;
-  text-decoration: none;
-  font-weight: 600;
-  transition: border-color .15s ease, background .15s ease;
-}
-a.btn:hover { border-color: #8b949e; background: #1f242c; }
-a.btn svg { width: 20px; height: 20px; fill: currentColor; }
-footer { margin-top: 2.5rem; font-size: .85rem; color: #6e7681; }
-</style>
+<title>Anshul — BLITZcomm</title>
+<meta name="description" content="Write-ups from five systems: industrial control security, video anomaly detection, image forensics, cyber-risk quantification, and offline tactical routing.">
+<meta property="og:title" content="Anshul — BLITZcomm">
+<meta property="og:description" content="Industrial security, computer vision and embedded systems. Project write-ups and source.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bergg.me/">
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/">BERGG</a>
+    <nav class="navlinks">
+      <a href="#work">Work</a>
+      <a href="#stack">Stack</a>
+      <a href="https://github.com/anshulec23-cloud">GitHub</a>
+    </nav>
+  </div>
+</header>
+
 <main>
-<h1>BLITZcomm</h1>
-<p>Electronics &amp; communication engineering. Projects in industrial security, computer vision and embedded systems.</p>
-<a class="btn" href="https://github.com/anshulec23-cloud">
-<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-View my GitHub
-</a>
-<footer>bergg.me</footer>
+
+<div class="wrap hero">
+  <p class="eyebrow">Anshul &nbsp;/&nbsp; Final-year ECE &nbsp;/&nbsp; Mangalore, India</p>
+  <h1>Systems built to hold when something is actively trying to break them.</h1>
+  <p>Industrial control security, computer-vision forensics and embedded tooling. Every project below has a write-up: the problem it addresses, how the system actually works, and where it stops.</p>
+  <div class="meta">
+    <span>B.E. Electronics &amp; Communication</span>
+    <span>ICS / OT security</span>
+    <span>Computer vision</span>
+    <span>Embedded &amp; edge</span>
+  </div>
+</div>
+
+<section id="work" class="wrap">
+  <p class="label">Selected work</p>
+  <div class="idx">
+
+    <div class="idx-row">
+      <a class="cover" href="projects/aegis-ics.html" aria-label="Aegis ICS write-up"></a>
+      <div class="idx-num">01</div>
+      <div>
+        <h2 class="idx-title">Aegis ICS</h2>
+        <p class="idx-desc">A zero-trust gateway that sits inline between field devices and the control network, tests supervisory setpoints against physical stability limits, and de-energises a relay in 12.74&nbsp;ms when a command would be unsafe.</p>
+      </div>
+      <div class="idx-tags">Python · Flask · ESP32<br>Random Forest · PyWebView</div>
+      <div class="idx-arrow">&rarr;</div>
+    </div>
+
+    <div class="idx-row">
+      <a class="cover" href="projects/sentinel.html" aria-label="Sentinel write-up"></a>
+      <div class="idx-num">02</div>
+      <div>
+        <h2 class="idx-title">Sentinel</h2>
+        <p class="idx-desc">Real-time video anomaly detection. YOLOv8 finds people, DeepSORT holds their identity across frames, and an LSTM autoencoder flags motion it was never trained to reconstruct.</p>
+      </div>
+      <div class="idx-tags">PyTorch · YOLOv8<br>DeepSORT · FastAPI</div>
+      <div class="idx-arrow">&rarr;</div>
+    </div>
+
+    <div class="idx-row">
+      <a class="cover" href="projects/image-forgery-detection.html" aria-label="Image Forgery Detector write-up"></a>
+      <div class="idx-num">03</div>
+      <div>
+        <h2 class="idx-title">Image Forgery Detector</h2>
+        <p class="idx-desc">Document screening that reads compression residue rather than pixels. Two ResNet18 streams — raw RGB and Error Level Analysis — fuse into one verdict, with Grad-CAM showing where the evidence sits.</p>
+      </div>
+      <div class="idx-tags">PyTorch · ResNet18<br>Grad-CAM · Streamlit</div>
+      <div class="idx-arrow">&rarr;</div>
+    </div>
+
+    <div class="idx-row">
+      <a class="cover" href="projects/cyberrisk.html" aria-label="CyberRisk write-up"></a>
+      <div class="idx-num">04</div>
+      <div>
+        <h2 class="idx-title">CyberRisk Platform</h2>
+        <p class="idx-desc">Five agents in a LangGraph pipeline take an MQTT telemetry stream, decide whether an industrial device is under attack, isolate it, and price the incident in downtime, SLA penalties and regulatory exposure.</p>
+      </div>
+      <div class="idx-tags">LangGraph · FastAPI<br>MQTT · React</div>
+      <div class="idx-arrow">&rarr;</div>
+    </div>
+
+    <div class="idx-row">
+      <a class="cover" href="projects/tactical-recon.html" aria-label="BERGG Tactical Recon write-up"></a>
+      <div class="idx-num">05</div>
+      <div>
+        <h2 class="idx-title">BERGG Tactical Recon</h2>
+        <p class="idx-desc">An offline-first navigation console. Valhalla routes locally from pre-loaded tiles, OSRM catches anything outside them, and the map overlays local wireless telemetry onto the computed route.</p>
+      </div>
+      <div class="idx-tags">Valhalla · OSRM<br>JavaScript · Docker</div>
+      <div class="idx-arrow">&rarr;</div>
+    </div>
+
+  </div>
+</section>
+
+<section id="stack" class="wrap">
+  <p class="label">Working stack</p>
+  <ul class="facts">
+    <li><b>Languages</b><span>Python, JavaScript, C/C++ (ESP32), SQL</span></li>
+    <li><b>ML</b><span>PyTorch, scikit-learn, YOLOv8, Grad-CAM, LSTM autoencoders, Random Forest</span></li>
+    <li><b>Backend</b><span>FastAPI, Flask, WebSockets, MQTT (Mosquitto), SQLite / Postgres</span></li>
+    <li><b>Edge</b><span>ESP32 firmware, serial / fieldbus framing, HMAC-SHA256 signing, X25519 key exchange</span></li>
+    <li><b>Tooling</b><span>Docker Compose, GitHub Actions, pytest, pre-commit</span></li>
+  </ul>
+  <div class="btnrow">
+    <a class="btn" href="https://github.com/anshulec23-cloud">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      All repositories
+    </a>
+  </div>
+</section>
+
 </main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>bergg.me</span>
+    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+  </div>
+</footer>
+
 </body>
 </html>

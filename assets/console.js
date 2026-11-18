@@ -166,9 +166,9 @@
   function sentinel(root) {
     const N = 520;
     const tracks = [
-      { id: 7,  hue: "a", x0: .08, y0: .62, vx: .0013, vy: -.00016 },
-      { id: 12, hue: "b", x0: .72, y0: .22, vx: -.0009, vy: .00042 },
-      { id: 19, hue: "c", x0: .34, y0: .14, vx: .0004, vy: .0009 }
+      { id: 7,  x0: .08, y0: .62, vx: .0013, vy: -.00016 },
+      { id: 12, x0: .72, y0: .22, vx: -.0009, vy: .00042 },
+      { id: 19, x0: .34, y0: .14, vx: .0004, vy: .0009 }
     ];
     // track 12 sprints between frames 300-372
     const sprint = [300, 372];
@@ -559,5 +559,305 @@
         console.error(err);
       }
     });
+  });
+})();
+
+/* ============================================================
+   v2 craft layer — continuity, keyboard, live band, command menu
+   ============================================================ */
+
+(() => {
+  "use strict";
+
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const UNITS = [
+    { no: "01", label: "Aegis ICS",              hint: "ICS enforcement", href: "/projects/aegis-ics.html" },
+    { no: "02", label: "Sentinel",               hint: "Video anomaly",   href: "/projects/sentinel.html" },
+    { no: "03", label: "Image Forgery Detector", hint: "Forensics",       href: "/projects/image-forgery-detection.html" },
+    { no: "04", label: "CyberRisk Platform",     hint: "Risk engine",     href: "/projects/cyberrisk.html" },
+    { no: "05", label: "BERGG Tactical Recon",   hint: "Offline routing", href: "/projects/tactical-recon.html" }
+  ];
+
+  /* ---- prerender the next page on intent, so navigation is instant ---- */
+
+  function speculate() {
+    try {
+      if (!HTMLScriptElement.supports || !HTMLScriptElement.supports("speculationrules")) return;
+      const s = document.createElement("script");
+      s.type = "speculationrules";
+      s.textContent = JSON.stringify({
+        prerender: [{ where: { href_matches: "/projects/*" }, eagerness: "moderate" }]
+      });
+      document.head.append(s);
+    } catch (_) { /* progressive enhancement only */ }
+  }
+
+  /* ---- hand the title across the navigation ---- */
+
+  function handoff() {
+    const rack = $(".rack");
+
+    if (rack) {
+      $$(".unit", rack).forEach(u => {
+        const link = $(".unit-link", u), title = $("h3", u);
+        if (!link || !title) return;
+        link.addEventListener("pointerdown", () => { title.style.viewTransitionName = "unit-title"; });
+      });
+
+      // arriving back from a project: name the row it came from so it morphs home
+      const ref = document.referrer;
+      if (ref) {
+        const back = $$(".unit", rack).find(u => {
+          const href = $(".unit-link", u) ? $(".unit-link", u).getAttribute("href") : "";
+          return href && ref.endsWith(href);
+        });
+        const h = back && $("h3", back);
+        if (h) {
+          h.style.viewTransitionName = "unit-title";
+          setTimeout(() => { h.style.viewTransitionName = ""; }, 600);
+        }
+      }
+    }
+
+    addEventListener("pagehide", () => {
+      $$(".unit h3").forEach(h => { h.style.viewTransitionName = ""; });
+    });
+  }
+
+  /* ---- drive the rack from the keyboard ---- */
+
+  function rackKeys() {
+    const units = $$(".unit");
+    if (!units.length) return;
+    let i = -1;
+
+    const paint = () => units.forEach((u, n) => u.classList.toggle("is-cursor", n === i));
+    const move = d => {
+      const next = i < 0 ? (d > 0 ? 0 : units.length - 1) : i + d;
+      i = Math.min(units.length - 1, Math.max(0, next));
+      paint();
+      units[i].scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
+    };
+
+    addEventListener("keydown", e => {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
+      if (document.body.dataset.menu === "open") return;
+      const t = (e.target.tagName || "").toLowerCase();
+      if (t === "input" || t === "textarea" || t === "select") return;
+
+      if (e.key === "ArrowDown" || e.key === "j") { move(1); e.preventDefault(); }
+      else if (e.key === "ArrowUp" || e.key === "k") { move(-1); e.preventDefault(); }
+      else if (e.key === "Enter" && i >= 0) { const l = $(".unit-link", units[i]); if (l) l.click(); }
+      else if (e.key === "Escape") { i = -1; paint(); }
+    });
+  }
+
+  /* ---- a live trace of detector behaviour, quietly ---- */
+
+  function band() {
+    const plate = $(".plate");
+    if (!plate || !$(".rack")) return;
+
+    const N = 260, W = 1200, H = 72, THRESH = 0.34, FLOOR = 6, CEIL = H - 8;
+    const y = v => CEIL - Math.min(v / 0.9, 1) * (CEIL - FLOOR);
+
+    const host = document.createElement("section");
+    host.className = "band";
+    host.innerHTML =
+      `<div class="wrap" style="position:relative">
+         <div class="band-label">Sentinel · reconstruction error · <b>live</b></div>
+         <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"
+              aria-label="A continuously updating trace of reconstruction error from the Sentinel detector">
+           <line class="sig-thresh" x1="0" y1="${y(THRESH).toFixed(1)}" x2="${W}" y2="${y(THRESH).toFixed(1)}"></line>
+           <path class="sig" d=""></path>
+           <path class="sig-hot" d=""></path>
+         </svg>
+       </div>`;
+    plate.after(host);
+
+    const base = $(".sig", host), hot = $(".sig-hot", host);
+    const data = [];
+    let phase = 0, event = -1;
+
+    function next() {
+      phase++;
+      if (event < 0 && Math.random() < 0.004) event = 0;
+      let v = 0.1 + Math.sin(phase / 19) * 0.013 + Math.random() * 0.016;
+      if (event >= 0) {
+        v += 0.6 * Math.sin((event / 46) * Math.PI);
+        if (++event > 46) event = -1;
+      }
+      data.push(v);
+      while (data.length > N) data.shift();
+    }
+
+    function draw() {
+      const step = W / (N - 1);
+      let d = "", h = "", open = false;
+      data.forEach((v, n) => {
+        const px = (n * step).toFixed(1), py = y(v).toFixed(1);
+        d += (n ? " L " : "M ") + px + " " + py;
+        if (v > THRESH) { h += (open ? " L " : " M ") + px + " " + py; open = true; }
+        else open = false;
+      });
+      base.setAttribute("d", d);
+      hot.setAttribute("d", h);
+    }
+
+    for (let n = 0; n < N; n++) next();
+    draw();
+
+    if (reduced) return;
+
+    let run = false, last = 0;
+    const tick = now => {
+      if (!run) return;
+      if (now - last > 46) { next(); draw(); last = now; }
+      requestAnimationFrame(tick);
+    };
+    // pause while off screen
+    new IntersectionObserver(([e]) => {
+      run = e.isIntersecting;
+      if (run) requestAnimationFrame(tick);
+    }, { threshold: 0 }).observe(host);
+  }
+
+  /* ---- command menu ---- */
+
+  function commandMenu() {
+    const items = [
+      ...UNITS.map(u => ({ ...u, kind: "System" })),
+      { no: "→", label: "All repositories on GitHub", hint: "External", href: "https://github.com/anshulec23-cloud" },
+      { no: "#", label: "Working stack", hint: "Index", href: "/#stack" },
+      { no: "⎘", label: "Copy link to this page", hint: "Action",
+        run: () => navigator.clipboard && navigator.clipboard.writeText(location.href) }
+    ];
+
+    const root = document.createElement("div");
+    root.className = "cmdk";
+    root.hidden = true;
+    root.innerHTML =
+      `<div class="cmdk-scrim" data-close></div>
+       <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Command menu">
+         <input class="cmdk-input" type="text" placeholder="Jump to a system…"
+                spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Search commands">
+         <ul class="cmdk-list" role="listbox"></ul>
+         <div class="cmdk-foot"><span>↑↓ move</span><span>↵ open</span><span>esc close</span></div>
+       </div>`;
+    document.body.append(root);
+
+    const input = $(".cmdk-input", root), list = $(".cmdk-list", root);
+    let shown = [], sel = 0, opener = null;
+
+    function render(q) {
+      const needle = (q || "").trim().toLowerCase();
+      shown = items.filter(it => !needle || (it.label + " " + it.hint).toLowerCase().includes(needle));
+      sel = 0;
+      list.innerHTML = shown.length
+        ? shown.map((it, n) =>
+            `<li role="option" data-n="${n}" aria-selected="${n === 0}">
+               <span class="cmdk-no">${it.no}</span>
+               <span class="cmdk-label">${it.label}</span>
+               <span class="cmdk-hint">${it.hint}</span>
+             </li>`).join("")
+        : `<li class="cmdk-empty"><span class="cmdk-hint">No match</span></li>`;
+    }
+
+    function mark() {
+      $$("li[role=option]", list).forEach((li, n) => {
+        li.setAttribute("aria-selected", String(n === sel));
+        if (n === sel) li.scrollIntoView({ block: "nearest" });
+      });
+    }
+
+    function open() {
+      opener = document.activeElement;
+      document.body.dataset.menu = "open";
+      root.hidden = false;
+      render("");
+      input.value = "";
+      input.focus();
+    }
+
+    function close() {
+      root.hidden = true;
+      delete document.body.dataset.menu;
+      if (opener && opener.focus) opener.focus();
+    }
+
+    function go(it) {
+      if (!it) return;
+      close();
+      if (it.href) location.href = it.href;
+      else if (it.run) it.run();
+    }
+
+    input.addEventListener("input", () => render(input.value));
+
+    root.addEventListener("pointerdown", e => {
+      if (e.target.closest("[data-close]")) { close(); return; }
+      const li = e.target.closest("li[role=option]");
+      if (li) { e.preventDefault(); go(shown[+li.dataset.n]); }
+    });
+
+    root.addEventListener("keydown", e => {
+      if (e.key === "Escape") { close(); e.preventDefault(); }
+      else if (e.key === "ArrowDown") { sel = Math.min(shown.length - 1, sel + 1); mark(); e.preventDefault(); }
+      else if (e.key === "ArrowUp") { sel = Math.max(0, sel - 1); mark(); e.preventDefault(); }
+      else if (e.key === "Enter") { go(shown[sel]); e.preventDefault(); }
+    });
+
+    addEventListener("keydown", e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        if (root.hidden) open(); else close();
+      }
+    });
+
+    // discoverable trigger, desktop only — the rail is tight on phones
+    if (innerWidth >= 760) {
+      const nav = $(".rail-nav");
+      if (nav) {
+        const b = document.createElement("button");
+        b.className = "rail-k";
+        b.type = "button";
+        b.setAttribute("aria-label", "Open command menu");
+        const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+        b.innerHTML = `<span class="kbd">${mac ? "⌘" : "Ctrl"} K</span>`;
+        b.addEventListener("pointerdown", e => { e.preventDefault(); open(); });
+        nav.append(b);
+      }
+    }
+  }
+
+  /* ---- copy link, with feedback next to the trigger ---- */
+
+  function copyLink() {
+    const foot = $(".foot .wrap");
+    if (!foot || !navigator.clipboard) return;
+    const b = document.createElement("button");
+    b.className = "copy";
+    b.type = "button";
+    b.innerHTML = `<span>Copy link</span><span class="ok" aria-hidden="true">✓</span>`;
+    b.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(location.href);
+        b.classList.add("done");
+        setTimeout(() => b.classList.remove("done"), 1400);
+      } catch (_) { /* clipboard refused — nothing to say */ }
+    });
+    foot.append(b);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    speculate();
+    handoff();
+    rackKeys();
+    band();
+    commandMenu();
+    copyLink();
   });
 })();

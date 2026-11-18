@@ -4,125 +4,205 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aegis ICS — bergg.me</title>
-<meta name="description" content="A zero-trust security gateway and physical safety enforcer for industrial control systems: inline setpoint validation, ML anomaly detection, and sub-15 ms relay cut-off.">
-<link rel="stylesheet" href="../assets/site.css">
+<meta name="description" content="A zero-trust gateway and physical safety enforcer for industrial control systems. Operate the enforcement loop in the browser.">
+<meta name="theme-color" content="#0b0d0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0d0c'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23f2a33c' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 
-<header class="topbar">
+<header class="rail">
   <div class="wrap">
-    <a class="brand" href="../">BERGG</a>
-    <nav class="navlinks">
-      <a href="../#work">Work</a>
-      <a href="https://github.com/anshulec23-cloud/aegis-ics">Repository</a>
+    <a class="rail-brand" href="/">BERGG</a>
+    <nav class="rail-nav">
+      <a href="/#systems">Index</a>
+      <a href="https://github.com/anshulec23-cloud/aegis-ics">Source</a>
     </nav>
+    <div class="rail-status">
+      <span class="utc num" data-utc>--:--:--</span>
+      <span class="lamp on" aria-hidden="true"></span>
+      <span>UNIT 01</span>
+    </div>
   </div>
 </header>
 
 <main>
 
-<div class="wrap ph">
-  <a class="back" href="../#work">&larr; Index</a>
+<section class="wrap phead">
+  <a class="back" href="/#systems">← Index</a>
   <h1>Aegis ICS</h1>
   <p class="lede">A zero-trust gateway that sits <em>inline</em> between industrial field devices and the control network — validating every frame, testing every setpoint against physical stability limits, and cutting power to a relay when a command would push the process somewhere it cannot come back from.</p>
+</section>
 
-  <dl class="spec">
+<section class="wrap">
+
+  <div class="console" data-demo="aegis">
+    <div class="console-bar">
+      <span class="tag">Console 01 · enforcement loop</span>
+      <span class="spacer"></span>
+      <span class="lamp on" data-lamp aria-hidden="true"></span>
+      <span class="tag">live</span>
+    </div>
+
+    <div class="console-body">
+      <div class="grid-2">
+
+        <div>
+          <div class="plotbox">
+            <svg class="fig" viewBox="0 0 440 240" role="img" aria-label="Stability envelope with the current operating point">
+              <path class="safe" data-edge d=""></path>
+              <line class="ax" x1="38" y1="12" x2="38" y2="212"></line>
+              <line class="ax" x1="38" y1="212" x2="430" y2="212"></line>
+              <text class="axlabel" x="38" y="230">20</text>
+              <text class="axlabel" x="230" y="230">TEMPERATURE °C</text>
+              <text class="axlabel" x="408" y="230">190</text>
+              <text class="axlabel" x="6" y="212">0</text>
+              <text class="axlabel" x="6" y="20">12</text>
+              <text class="axlabel" x="46" y="26">PRESSURE bar</text>
+              <text class="axlabel safe-tag" x="52" y="196">SAFE OPERATING REGION</text>
+              <circle data-dot cx="100" cy="150" r="5"></circle>
+            </svg>
+          </div>
+
+          <div class="ctrl" style="margin-top:18px">
+            <div class="ctrl-head">
+              <label for="t">Supervisory setpoint — temperature</label>
+              <output data-temp-out id="tout">60</output>
+            </div>
+            <input id="t" type="range" data-temp min="20" max="190" step="1" value="60">
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl-head">
+              <label for="p">Supervisory setpoint — pressure</label>
+              <output data-pres-out id="pout">4.0</output>
+            </div>
+            <input id="p" type="range" data-pres min="0" max="12" step="0.1" value="4">
+          </div>
+
+          <div class="btn-row">
+            <button class="btn" data-replay>Inject replay frame</button>
+            <button class="btn" data-stale>Stale telemetry</button>
+            <button class="btn" data-rearm>Re-arm relay</button>
+          </div>
+        </div>
+
+        <div>
+          <dl class="stack">
+            <div><dt>State</dt><dd data-state class="is-ok">NOMINAL</dd></div>
+            <div><dt>Relay GPIO25</dt><dd data-relay>CLOSED</dd></div>
+            <div><dt>Cut latency</dt><dd class="big"><span data-latency>0.00</span> <span>ms</span></dd></div>
+            <div><dt>Classifier</dt><dd data-class>—</dd></div>
+            <div><dt>ATT&amp;CK ICS</dt><dd data-tech style="font-size:11px">—</dd></div>
+            <div><dt>Trust score</dt><dd data-trust class="is-ok">100</dd></div>
+          </dl>
+          <div class="log" data-log style="margin-top:16px" aria-live="polite"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="console-note">Simulation. Runs the same manifold test, freshness gate and trip logic as the gateway, in your browser. Not connected to hardware; the 12.74 ms figure is the measured bench value, not a timing of this page.</p>
+  </div>
+
+  <dl class="strip" style="margin-top:34px">
     <div><dt>Domain</dt><dd>ICS / OT security</dd></div>
     <div><dt>Release</dt><dd>v2.6.0</dd></div>
-    <div><dt>Stack</dt><dd>Python, Flask, PyWebView, ESP32</dd></div>
+    <div><dt>Stack</dt><dd>Python · Flask · ESP32</dd></div>
     <div><dt>Licence</dt><dd>Apache-2.0</dd></div>
   </dl>
-</div>
 
-<article class="wrap">
-
-<section>
-  <h2>The problem</h2>
-  <p>A conventional industrial IDS sniffs network traffic and raises an alert. By the time anyone reads it, the command has already reached the actuator. Physical processes do not wait for a SOC queue.</p>
-  <p>Four failure modes drove the design:</p>
-  <ul>
-    <li><strong>Coordinated multi-variable stress.</strong> A setpoint that is harmless on its own threshold alarm can destroy equipment when combined with another variable's current state — raising temperature while pressure is already elevated. Single-variable alarms are structurally blind to this.</li>
-    <li><strong>Field device hijacking and replay.</strong> Industrial fieldbuses are usually unauthenticated. Anyone with bus access can inject forged telemetry or setpoints.</li>
-    <li><strong>Telemetry staleness.</strong> When sensors drop out, traditional interlocks tend to fail <em>open</em> — they skip the cross-variable check rather than refusing the command.</li>
-    <li><strong>Uncontained cascades.</strong> A compromised node stays on the control network while someone decides what to do about it.</li>
-  </ul>
 </section>
 
-<section>
-  <h2>How it works</h2>
-  <pre class="diagram"><code>ESP32 field node
-      |  signed frame (HMAC-SHA256, boot + sequence no.)
-      v
-[ 1 ] INGEST        schema -> freshness (&lt;120 s) -> signature
-      |                                fail -> reject, fail closed
-      v
-[ 2 ] TRUST         continuous per-device trust score
-      |
-      v
-[ 3 ] SAFETY POLICY 6D neural policy + deterministic invariants
-      |             setpoint tested against stability manifold
-      v
-[ 4 ] ENFORCE       de-energise optocoupler relay, GPIO 25
-      |             measured at 12.74 ms
-      v
-[ 5 ] CLASSIFY      Random Forest names the attack; loss engine
-                    prices it; NIST SP 800 report is generated</code></pre>
+<section class="wrap doc">
 
-  <h3>Zero-trust by default</h3>
-  <p>Every sensor frame is checked three ways before it is allowed to influence anything: schema structure, timestamp freshness under 120 seconds, and a FIPS 198-1 HMAC-SHA256 signature over a canonical serialisation. A frame that fails any check is dropped, and a setpoint arriving without fresh telemetry behind it is <strong>refused</strong> rather than waved through. Fail-closed, not fail-open.</p>
-
-  <h3>Keys nobody has to provision</h3>
-  <p>New ESP32 slaves announce themselves on the bus and the operator approves each one with a click. Session keys are derived per device with X25519 and HKDF-SHA256 — no shared secret, no pre-provisioned key material, and one firmware image for every node because device IDs are derived from the MAC. Boot and sequence numbers in each frame make replay detectable.</p>
-
-  <h3>The part worth arguing about</h3>
-  <p>The machine-learning classifier does <strong>not</strong> decide whether to quarantine a device. Deterministic rules and the trust score do that. The Random Forest only <em>names</em> the attack — <code>fdi_spike</code>, <code>stuxnet</code>, <code>thermal_drift</code>, <code>sensor_fault</code>, <code>normal</code> — and hands that label, with its confidence and the matching MITRE ATT&amp;CK for ICS technique, to the reporting and financial layers.</p>
-  <p>That split is deliberate. A model that goes quiet, drifts, or is adversarially nudged cannot weaken the defensive response, because the response was never conditional on it. The ML makes the incident <em>legible</em>; the rules make it <em>safe</em>.</p>
-</section>
-
-<section>
-  <h2>Measured</h2>
-  <ul class="facts">
-    <li><b>12.74 ms</b><span>Relay de-energisation, anomaly detection to physical cut-off on GPIO 25</span></li>
-    <li><b>0.9755 ROC-AUC</b><span>5-variable Random Forest anomaly classifier</span></li>
-    <li><b>96.08%</b><span>Validation accuracy, 6D neural safety policy network</span></li>
-    <li><b>&lt;120 s</b><span>Telemetry staleness gate before setpoints are refused</span></li>
-    <li><b>Offline</b><span>Both models run locally — no cloud inference path to sever or intercept</span></li>
-  </ul>
-</section>
-
-<section>
-  <h2>Beyond detection</h2>
-  <p>Each approved device carries a financial profile. When an incident is live, the loss engine computes actual loss, projected loss if left unfixed, the catastrophe avoided, time-to-fix and restabilisation cost, expressed through FAIR and regulatory exposure. A one-click report maps the whole thing onto NIST SP 800 controls with ML-selected mitigations and recovery times.</p>
-  <p>Operator actions — logins, setpoint changes, rule edits — are logged against the verified 3D spatial coordinates of the terminal they came from, so an insider action has a location attached to it and not just a username.</p>
-  <p>A localhost-only, token-authenticated red-team backend drives a staged eight-attack campaign against the running system so the defence and the loss numbers can be exercised rather than asserted.</p>
-</section>
-
-<section>
-  <h2>Honest limits</h2>
-  <div class="callout">
-    <span class="k">Scope</span>
-    <p>The portable USB attack-drill runner is distributed separately and is not in this repository. Where the README and <code>docs/</code> disagree, <code>docs/</code> reflects the actual code — it is the authoritative reference.</p>
+  <div class="block">
+    <div class="block-label"><span class="n">01</span><span class="t">Problem</span></div>
+    <div class="prose">
+      <p>A conventional industrial IDS sniffs network traffic and raises an alert. By the time anyone reads it, the command has already reached the actuator. Physical processes do not wait for a SOC queue.</p>
+      <p>Four failure modes drove the design:</p>
+      <ul>
+        <li><strong>Coordinated multi-variable stress.</strong> A setpoint that is harmless against its own threshold alarm can destroy equipment when combined with another variable's current state — raising temperature while pressure is already elevated. Single-variable alarms are structurally blind to this. It is the diagonal boundary in the console above.</li>
+        <li><strong>Field device hijacking and replay.</strong> Industrial fieldbuses are usually unauthenticated. Anyone with bus access can inject forged telemetry or setpoints.</li>
+        <li><strong>Telemetry staleness.</strong> When sensors drop out, traditional interlocks tend to fail <em>open</em> — they skip the cross-variable check rather than refusing the command.</li>
+        <li><strong>Uncontained cascades.</strong> A compromised node stays on the control network while someone decides what to do about it.</li>
+      </ul>
+    </div>
   </div>
-  <p>The physical enforcement path has been exercised on an ESP32 testbench with simulated process dynamics, not on a production plant. The stability manifolds encode a model of the process; a model that is wrong about the physics will be confidently wrong about safety, which is why the deterministic invariants sit alongside it rather than behind it.</p>
+
+  <div class="block">
+    <div class="block-label"><span class="n">02</span><span class="t">Design</span></div>
+    <div class="prose">
+      <h3>Zero trust, meant literally</h3>
+      <p>Every sensor frame is checked three ways before it influences anything: schema structure, timestamp freshness under 120 seconds, and a FIPS 198-1 HMAC-SHA256 signature over a canonical serialisation. A frame failing any check is dropped, and a setpoint arriving without fresh telemetry behind it is <strong>refused</strong> rather than waved through. Press <em>stale telemetry</em> in the console to watch that path.</p>
+
+      <h3>Keys nobody has to provision</h3>
+      <p>New ESP32 slaves announce themselves on the bus and an operator approves each with one click. Session keys are derived per device with X25519 and HKDF-SHA256 — no shared secret, no pre-provisioned key material, one firmware image for every node because IDs derive from the MAC. Boot and sequence numbers make replay detectable, which is what the <em>inject replay frame</em> button exercises.</p>
+
+      <h3>The part worth arguing about</h3>
+      <p>The machine-learning classifier does <strong>not</strong> decide whether to quarantine a device. Deterministic rules and the trust score do that. The Random Forest only <em>names</em> the attack — <code>fdi_spike</code>, <code>stuxnet</code>, <code>thermal_drift</code>, <code>sensor_fault</code>, <code>normal</code> — and passes that label, with its confidence and the matching MITRE ATT&amp;CK for ICS technique, to the reporting and financial layers.</p>
+      <p>That split is deliberate. A model that goes quiet, drifts, or is adversarially nudged cannot weaken the defensive response, because the response was never conditional on it. The ML makes an incident <em>legible</em>; the rules make it <em>safe</em>.</p>
+
+      <h3>Re-arming is manual</h3>
+      <p>Pulling the setpoint back inside the envelope does not close the relay. An operator re-arms it, and the gateway refuses to re-arm while the commanded state is still unsafe. Automatic recovery would let an attacker oscillate across the boundary and ride the gap.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">03</span><span class="t">Measured</span></div>
+    <div class="prose">
+      <dl class="meas">
+        <div><dt>12.74 ms</dt><dd>Anomaly detection to physical cut-off, optocoupler relay on GPIO 25</dd></div>
+        <div><dt>0.9755</dt><dd>ROC-AUC, 5-variable Random Forest anomaly classifier</dd></div>
+        <div><dt>96.08 %</dt><dd>Validation accuracy, 6-dimensional neural safety policy network</dd></div>
+        <div><dt>120 s</dt><dd>Telemetry staleness gate before setpoints are refused</dd></div>
+        <div><dt>10 / min</dt><dd>Per-IP login rate limit, on top of gateway-token ingestion</dd></div>
+        <div><dt>Offline</dt><dd>Both models run locally — no cloud inference path to sever or intercept</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">04</span><span class="t">Beyond detection</span></div>
+    <div class="prose">
+      <p>Each approved device carries a financial profile. While an incident is live the loss engine computes actual loss, projected loss if left unfixed, the catastrophe avoided, time-to-fix and restabilisation cost, expressed through FAIR and regulatory exposure. A one-click report maps it onto NIST SP 800 controls with ML-selected mitigations and recovery times.</p>
+      <p>Operator actions — logins, setpoint changes, rule edits — are logged against the verified 3D spatial coordinates of the terminal they came from, so an insider action carries a location and not just a username.</p>
+      <p>A localhost-only, token-authenticated red-team backend drives a staged eight-attack campaign against the running system, so the defence and the loss figures can be exercised rather than asserted.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">05</span><span class="t">Limits</span></div>
+    <div class="prose">
+      <div class="caveat">
+        <span class="k">Read this before trusting the numbers</span>
+        <p>The enforcement path has been exercised on an ESP32 bench with simulated process dynamics, not on a production plant. The portable USB attack-drill runner is distributed separately and is not in the repository. Where the README and <code>docs/</code> disagree, <code>docs/</code> reflects the actual code.</p>
+      </div>
+      <p>The stability manifolds encode a model of the process. A model that is wrong about the physics will be confidently wrong about safety — which is exactly why the deterministic invariants sit <em>alongside</em> the learned policy rather than behind it, and why the relay is a physical interrupt rather than a software flag.</p>
+      <p>The console above is a faithful toy: same envelope test, same fail-closed staleness behaviour, same manual re-arm. It is not the gateway, and it proves nothing about the gateway's behaviour under real bus timing.</p>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin:40px 0 0">
+    <a class="btn" href="https://github.com/anshulec23-cloud/aegis-ics">Read the source</a>
+    <a class="btn" href="/projects/sentinel.html">Unit 02 — Sentinel →</a>
+  </div>
+
 </section>
 
-<div class="btnrow">
-  <a class="btn" href="https://github.com/anshulec23-cloud/aegis-ics">
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-    Source
-  </a>
-  <a class="btn" href="../#work">Next project &rarr;</a>
-</div>
-
-</article>
 </main>
 
-<footer class="site">
+<footer class="foot">
   <div class="wrap">
     <span>bergg.me</span>
-    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+    <span class="spacer"></span>
+    <a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a>
   </div>
 </footer>
 
+<script src="/assets/console.js" defer></script>
 </body>
 </html>

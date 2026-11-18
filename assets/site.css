@@ -40,7 +40,13 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 
-.wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-left: 28px;
+  padding-right: 28px;
+}
 
 /* ---------- top bar ---------- */
 .topbar {
@@ -67,7 +73,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .rule { height: 1px; background: var(--line); border: 0; margin: 0; }
 
 /* ---------- hero ---------- */
-.hero { padding: 104px 0 72px; }
+.hero { padding-top: 104px; padding-bottom: 72px; }
 .hero .eyebrow {
   font-family: var(--mono); font-size: 11.5px; letter-spacing: .2em;
   text-transform: uppercase; color: var(--accent); margin: 0 0 22px;
@@ -88,7 +94,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .hero .meta span::before { content: "// "; color: var(--line); }
 
 /* ---------- project index ---------- */
-section { padding: 72px 0; }
+section { padding-top: 72px; padding-bottom: 72px; }
 
 .idx { border-top: 1px solid var(--line); }
 .idx-row {
@@ -117,7 +123,7 @@ section { padding: 72px 0; }
 .idx-arrow { font-family: var(--mono); color: var(--fg-faint); transition: color .16s ease, transform .16s ease; justify-self: end; }
 
 /* ---------- project page ---------- */
-.ph { padding: 84px 0 42px; }
+.ph { padding-top: 84px; padding-bottom: 42px; }
 .ph .back { font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--fg-dim); }
 .ph .back:hover { color: var(--accent); text-decoration: none; }
 .ph h1 {
@@ -148,6 +154,7 @@ article p strong { color: var(--fg); font-weight: 600; }
 article ul { max-width: 70ch; color: var(--fg-dim); padding-left: 20px; }
 article li { margin-bottom: 9px; }
 article li::marker { color: var(--fg-faint); }
+article section { padding-top: 52px; padding-bottom: 0; }
 
 pre.diagram {
   background: var(--panel); border: 1px solid var(--line); border-radius: 3px;
@@ -181,7 +188,7 @@ pre.diagram code { background: none; border: 0; padding: 0; }
 }
 .btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,163,255,.06); text-decoration: none; }
 .btn svg { width: 17px; height: 17px; fill: currentColor; }
-.btnrow { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 14px; margin: 46px 0 10px; }
 
 /* ---------- footer ---------- */
 footer.site {
@@ -195,9 +202,9 @@ footer.site a:hover { color: var(--accent); text-decoration: none; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 780px) {
-  .wrap { padding: 0 20px; }
-  .hero { padding: 68px 0 52px; }
-  section { padding: 54px 0; }
+  .wrap { padding-left: 20px; padding-right: 20px; }
+  .hero { padding-top: 68px; padding-bottom: 52px; }
+  section { padding-top: 54px; padding-bottom: 54px; }
   .idx-row { grid-template-columns: 38px 1fr; gap: 14px; padding: 22px 4px; }
   .idx-tags, .idx-arrow { display: none; }
   .spec div { border-right: 0; border-bottom: 1px solid var(--line); }

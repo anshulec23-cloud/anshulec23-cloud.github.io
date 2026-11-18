@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentinel — bergg.me</title>
+<meta name="description" content="Real-time video anomaly detection: YOLOv8 detection, DeepSORT tracking, and an LSTM autoencoder that flags motion it cannot reconstruct.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../">BERGG</a>
+    <nav class="navlinks">
+      <a href="../#work">Work</a>
+      <a href="https://github.com/anshulec23-cloud/digital-surveillance-system">Repository</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="wrap ph">
+  <a class="back" href="../#work">&larr; Index</a>
+  <h1>Sentinel</h1>
+  <p class="lede">Real-time video anomaly detection that learns what ordinary movement looks like and flags what it cannot reproduce — running the whole path from frame to alert on one machine, with no labelled anomaly dataset to collect.</p>
+
+  <dl class="spec">
+    <div><dt>Domain</dt><dd>Computer vision</dd></div>
+    <div><dt>Detects</dt><dd>Running, loitering, fighting, unknown</dd></div>
+    <div><dt>Stack</dt><dd>PyTorch, YOLOv8, DeepSORT, FastAPI</dd></div>
+    <div><dt>Licence</dt><dd>Apache-2.0</dd></div>
+  </dl>
+</div>
+
+<article class="wrap">
+
+<section>
+  <h2>The problem</h2>
+  <p>Supervised anomaly detection in video has a dataset problem that no amount of model architecture fixes: anomalies are, by definition, the thing you have the fewest examples of. Collecting a labelled corpus of fights and break-ins for every new camera angle is not a plan.</p>
+  <p>So Sentinel inverts it. Train only on normal movement, and treat <em>reconstruction failure</em> as the signal. The model never needs to see an anomaly to flag one.</p>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <pre class="diagram"><code>video (file / webcam / RTSP)
+      |
+      v
+[ detection ]   YOLOv8n -> person bounding boxes, 25+ FPS
+      |
+      v
+[ tracking  ]   DeepSORT -> stable track IDs across frames
+      |
+      v
+[ anomaly   ]   9-dim motion feature buffer, per track
+      |         LSTM autoencoder reconstructs the sequence
+      |         high reconstruction error + rule fusion
+      v
+[ logging   ]   events.jsonl + in-memory ring buffer
+      |
+      v
+[ api       ]   FastAPI: MJPEG stream, /ws/alerts, /api/events</code></pre>
+
+  <h3>Identity is what makes motion meaningful</h3>
+  <p>A bounding box on its own says nothing about behaviour. DeepSORT holds a person's identity across frames, which turns a sequence of boxes into a <em>trajectory</em> — and trajectories are where loitering, sprinting and scuffles actually live. Lose the track ID and the anomaly disappears with it.</p>
+
+  <h3>Nine numbers per person per frame</h3>
+  <p>Each track carries a compact feature vector — normalised centroid, normalised box dimensions, velocity in x and y, scalar speed, acceleration, and clamped aspect ratio. Everything is normalised against frame dimensions and the frame diagonal, so the model is not relearning the scene every time the camera changes resolution or position.</p>
+  <p>Aspect ratio is the quiet one: a standing person and a person on the ground differ sharply in it, which is what makes a fall or a tackle separable from fast walking.</p>
+
+  <h3>Model plus rules, not model alone</h3>
+  <p>The detector fuses autoencoder reconstruction error with explicit rules. The model catches the <em>unknown</em> category — movement that is simply unlike anything in training — while the rules keep the named classes stable and interpretable. An operator who asks "why did it alert?" gets an answer either way.</p>
+</section>
+
+<section>
+  <h2>Shipped</h2>
+  <ul class="facts">
+    <li><b>25+ FPS</b><span>YOLOv8n person detection on the tested hardware</span></li>
+    <li><b>Unsupervised</b><span>Trains on normal footage only — no labelled anomaly set required</span></li>
+    <li><b>Live</b><span>MJPEG stream plus a WebSocket alert channel</span></li>
+    <li><b>No build step</b><span>Single-file dashboard — open it and it runs</span></li>
+    <li><b>JSONL</b><span>Append-only event log, greppable and trivially replayable</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Honest limits</h2>
+  <p>Unsupervised detection trades a labelling problem for a threshold problem. Reconstruction error has no natural cut-off: set it tight and a crowded platform generates noise, set it loose and genuine events slip past. The rule layer exists partly to cover that, and partly because an operator will not trust a number they cannot interrogate.</p>
+  <div class="callout">
+    <span class="k">Dependency</span>
+    <p>Accuracy inherits YOLOv8's weaknesses. Heavy occlusion, unusual camera angles and crowds degrade detection, and anything the detector misses the tracker never sees — errors compound down the pipeline rather than cancelling out.</p>
+  </div>
+</section>
+
+<div class="btnrow">
+  <a class="btn" href="https://github.com/anshulec23-cloud/digital-surveillance-system">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+  <a class="btn" href="../#work">Next project &rarr;</a>
+</div>
+
+</article>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>bergg.me</span>
+    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

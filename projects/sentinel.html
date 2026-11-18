@@ -4,112 +4,183 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sentinel — bergg.me</title>
-<meta name="description" content="Real-time video anomaly detection: YOLOv8 detection, DeepSORT tracking, and an LSTM autoencoder that flags motion it cannot reconstruct.">
-<link rel="stylesheet" href="../assets/site.css">
+<meta name="description" content="Real-time video anomaly detection: YOLOv8, DeepSORT and an LSTM autoencoder. Scrub the reconstruction error in the browser.">
+<meta name="theme-color" content="#0b0d0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0d0c'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23f2a33c' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 
-<header class="topbar">
+<header class="rail">
   <div class="wrap">
-    <a class="brand" href="../">BERGG</a>
-    <nav class="navlinks">
-      <a href="../#work">Work</a>
-      <a href="https://github.com/anshulec23-cloud/digital-surveillance-system">Repository</a>
+    <a class="rail-brand" href="/">BERGG</a>
+    <nav class="rail-nav">
+      <a href="/#systems">Index</a>
+      <a href="https://github.com/anshulec23-cloud/digital-surveillance-system">Source</a>
     </nav>
+    <div class="rail-status">
+      <span class="utc num" data-utc>--:--:--</span>
+      <span class="lamp on" aria-hidden="true"></span>
+      <span>UNIT 02</span>
+    </div>
   </div>
 </header>
 
 <main>
 
-<div class="wrap ph">
-  <a class="back" href="../#work">&larr; Index</a>
+<section class="wrap phead">
+  <a class="back" href="/#systems">← Index</a>
   <h1>Sentinel</h1>
-  <p class="lede">Real-time video anomaly detection that learns what ordinary movement looks like and flags what it cannot reproduce — running the whole path from frame to alert on one machine, with no labelled anomaly dataset to collect.</p>
+  <p class="lede">Video anomaly detection that learns what ordinary movement looks like and flags what it cannot reproduce — the whole path from frame to alert on one machine, with no labelled anomaly dataset to collect.</p>
+</section>
 
-  <dl class="spec">
+<section class="wrap">
+
+  <div class="console" data-demo="sentinel">
+    <div class="console-bar">
+      <span class="tag">Console 02 · reconstruction error</span>
+      <span class="spacer"></span>
+      <span class="lamp on" data-lamp aria-hidden="true"></span>
+      <span class="tag">live</span>
+    </div>
+
+    <div class="console-body">
+      <div class="grid-2">
+
+        <div>
+          <div class="plotbox">
+            <svg class="fig" viewBox="0 0 420 190" role="img" aria-label="Tracked people in the scene">
+              <rect x="0" y="0" width="420" height="190" fill="#0a0d0b"></rect>
+              <line class="grid" x1="0" y1="63" x2="420" y2="63"></line>
+              <line class="grid" x1="0" y1="126" x2="420" y2="126"></line>
+              <line class="grid" x1="140" y1="0" x2="140" y2="190"></line>
+              <line class="grid" x1="280" y1="0" x2="280" y2="190"></line>
+              <g data-scene></g>
+            </svg>
+          </div>
+
+          <div class="plotbox" style="margin-top:10px">
+            <svg class="fig" viewBox="0 0 420 86" role="img" aria-label="Reconstruction error over time">
+              <path class="trace" data-trace d=""></path>
+              <line class="thresh" data-thresh x1="0" y1="40" x2="420" y2="40"></line>
+              <line class="cursor" data-cursor x1="0" y1="0" x2="0" y2="86"></line>
+            </svg>
+          </div>
+
+          <div class="ctrl" style="margin-top:16px">
+            <div class="ctrl-head">
+              <label for="s">Timeline — frame</label>
+              <output><span data-frame>000</span> <span>/ 519</span></output>
+            </div>
+            <input id="s" type="range" data-scrub min="0" max="519" step="1" value="0">
+          </div>
+
+          <div class="row">
+            <label for="f">Rule fusion — model ∧ rules</label>
+            <span class="switch"><input id="f" type="checkbox" data-fuse checked><i></i></span>
+          </div>
+
+          <div class="btn-row" style="margin-top:16px">
+            <button class="btn" data-play>Play</button>
+          </div>
+        </div>
+
+        <div>
+          <dl class="stack">
+            <div><dt>Verdict</dt><dd data-verdict class="is-ok">NORMAL</dd></div>
+            <div><dt>Recon error</dt><dd class="big" data-err>0.000</dd></div>
+            <div><dt>Threshold</dt><dd>0.340</dd></div>
+            <div><dt>Class</dt><dd data-kind>—</dd></div>
+            <div><dt>Tracks held</dt><dd>3</dd></div>
+          </dl>
+          <div class="log" data-log style="margin-top:16px" aria-live="polite"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="console-note">Simulation. The trace is synthetic telemetry, not a trained model's output; the fusion rule, threshold behaviour and track logic match the detector. Drag past frame 300 to reach the event.</p>
+  </div>
+
+  <dl class="strip" style="margin-top:34px">
     <div><dt>Domain</dt><dd>Computer vision</dd></div>
-    <div><dt>Detects</dt><dd>Running, loitering, fighting, unknown</dd></div>
-    <div><dt>Stack</dt><dd>PyTorch, YOLOv8, DeepSORT, FastAPI</dd></div>
+    <div><dt>Detects</dt><dd>Running · loitering · fighting</dd></div>
+    <div><dt>Stack</dt><dd>PyTorch · YOLOv8 · FastAPI</dd></div>
     <div><dt>Licence</dt><dd>Apache-2.0</dd></div>
   </dl>
-</div>
 
-<article class="wrap">
-
-<section>
-  <h2>The problem</h2>
-  <p>Supervised anomaly detection in video has a dataset problem that no amount of model architecture fixes: anomalies are, by definition, the thing you have the fewest examples of. Collecting a labelled corpus of fights and break-ins for every new camera angle is not a plan.</p>
-  <p>So Sentinel inverts it. Train only on normal movement, and treat <em>reconstruction failure</em> as the signal. The model never needs to see an anomaly to flag one.</p>
 </section>
 
-<section>
-  <h2>How it works</h2>
-  <pre class="diagram"><code>video (file / webcam / RTSP)
-      |
-      v
-[ detection ]   YOLOv8n -> person bounding boxes, 25+ FPS
-      |
-      v
-[ tracking  ]   DeepSORT -> stable track IDs across frames
-      |
-      v
-[ anomaly   ]   9-dim motion feature buffer, per track
-      |         LSTM autoencoder reconstructs the sequence
-      |         high reconstruction error + rule fusion
-      v
-[ logging   ]   events.jsonl + in-memory ring buffer
-      |
-      v
-[ api       ]   FastAPI: MJPEG stream, /ws/alerts, /api/events</code></pre>
+<section class="wrap doc">
 
-  <h3>Identity is what makes motion meaningful</h3>
-  <p>A bounding box on its own says nothing about behaviour. DeepSORT holds a person's identity across frames, which turns a sequence of boxes into a <em>trajectory</em> — and trajectories are where loitering, sprinting and scuffles actually live. Lose the track ID and the anomaly disappears with it.</p>
-
-  <h3>Nine numbers per person per frame</h3>
-  <p>Each track carries a compact feature vector — normalised centroid, normalised box dimensions, velocity in x and y, scalar speed, acceleration, and clamped aspect ratio. Everything is normalised against frame dimensions and the frame diagonal, so the model is not relearning the scene every time the camera changes resolution or position.</p>
-  <p>Aspect ratio is the quiet one: a standing person and a person on the ground differ sharply in it, which is what makes a fall or a tackle separable from fast walking.</p>
-
-  <h3>Model plus rules, not model alone</h3>
-  <p>The detector fuses autoencoder reconstruction error with explicit rules. The model catches the <em>unknown</em> category — movement that is simply unlike anything in training — while the rules keep the named classes stable and interpretable. An operator who asks "why did it alert?" gets an answer either way.</p>
-</section>
-
-<section>
-  <h2>Shipped</h2>
-  <ul class="facts">
-    <li><b>25+ FPS</b><span>YOLOv8n person detection on the tested hardware</span></li>
-    <li><b>Unsupervised</b><span>Trains on normal footage only — no labelled anomaly set required</span></li>
-    <li><b>Live</b><span>MJPEG stream plus a WebSocket alert channel</span></li>
-    <li><b>No build step</b><span>Single-file dashboard — open it and it runs</span></li>
-    <li><b>JSONL</b><span>Append-only event log, greppable and trivially replayable</span></li>
-  </ul>
-</section>
-
-<section>
-  <h2>Honest limits</h2>
-  <p>Unsupervised detection trades a labelling problem for a threshold problem. Reconstruction error has no natural cut-off: set it tight and a crowded platform generates noise, set it loose and genuine events slip past. The rule layer exists partly to cover that, and partly because an operator will not trust a number they cannot interrogate.</p>
-  <div class="callout">
-    <span class="k">Dependency</span>
-    <p>Accuracy inherits YOLOv8's weaknesses. Heavy occlusion, unusual camera angles and crowds degrade detection, and anything the detector misses the tracker never sees — errors compound down the pipeline rather than cancelling out.</p>
+  <div class="block">
+    <div class="block-label"><span class="n">01</span><span class="t">Problem</span></div>
+    <div class="prose">
+      <p>Supervised anomaly detection in video has a dataset problem no amount of architecture fixes: anomalies are by definition the thing you have fewest examples of. Collecting a labelled corpus of fights and break-ins for every new camera angle is not a plan.</p>
+      <p>So Sentinel inverts it. Train only on normal movement and treat <strong>reconstruction failure</strong> as the signal. The model never needs to see an anomaly to flag one.</p>
+    </div>
   </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">02</span><span class="t">Design</span></div>
+    <div class="prose">
+      <h3>Identity is what makes motion meaningful</h3>
+      <p>A bounding box alone says nothing about behaviour. DeepSORT holds a person's identity across frames, which turns a sequence of boxes into a <em>trajectory</em> — and trajectories are where loitering, sprinting and scuffles actually live. Lose the track ID and the anomaly disappears with it.</p>
+
+      <h3>Nine numbers per person per frame</h3>
+      <p>Each track carries a compact feature vector: normalised centroid, normalised box dimensions, velocity in x and y, scalar speed, acceleration, and clamped aspect ratio. Everything is normalised against frame dimensions and the frame diagonal, so the model is not relearning the scene every time the camera resolution or position changes.</p>
+      <p>Aspect ratio is the quiet one. A standing person and a person on the ground differ sharply in it, which is what separates a fall or a tackle from fast walking.</p>
+
+      <h3>Model plus rules, not model alone</h3>
+      <p>The detector fuses autoencoder reconstruction error with explicit rules. The model catches the <em>unknown</em> category — movement unlike anything in training — while the rules keep named classes stable and interpretable.</p>
+      <p>Turn fusion off in the console and scrub to frame 150. There is a blip there that crosses the threshold and is not an event. With fusion on it stays quiet; with fusion off it fires. That is the trade the switch makes visible: fusion costs you sensitivity to genuinely novel behaviour in exchange for far fewer false alarms, and which side you want depends on whether a human reviews every alert.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">03</span><span class="t">Shipped</span></div>
+    <div class="prose">
+      <dl class="meas">
+        <div><dt>25+ fps</dt><dd>YOLOv8n person detection on the tested hardware</dd></div>
+        <div><dt>Unsupervised</dt><dd>Trains on normal footage only — no labelled anomaly set</dd></div>
+        <div><dt>Live</dt><dd>MJPEG stream plus a WebSocket alert channel</dd></div>
+        <div><dt>No build</dt><dd>Single-file dashboard — open it and it runs</dd></div>
+        <div><dt>JSONL</dt><dd>Append-only event log, greppable and replayable</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">04</span><span class="t">Limits</span></div>
+    <div class="prose">
+      <p>Unsupervised detection trades a labelling problem for a threshold problem. Reconstruction error has no natural cut-off: set it tight and a crowded platform generates noise, set it loose and genuine events slip past. The rule layer covers part of that, and exists partly because an operator will not trust a number they cannot interrogate.</p>
+      <div class="caveat">
+        <span class="k">Inherited weakness</span>
+        <p>Accuracy inherits YOLOv8's. Heavy occlusion, unusual camera angles and crowds degrade detection, and anything the detector misses the tracker never sees — errors compound down the pipeline rather than cancelling out.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin:40px 0 0">
+    <a class="btn" href="https://github.com/anshulec23-cloud/digital-surveillance-system">Read the source</a>
+    <a class="btn" href="/projects/image-forgery-detection.html">Unit 03 — Forgery detector →</a>
+  </div>
+
 </section>
 
-<div class="btnrow">
-  <a class="btn" href="https://github.com/anshulec23-cloud/digital-surveillance-system">
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-    Source
-  </a>
-  <a class="btn" href="../#work">Next project &rarr;</a>
-</div>
-
-</article>
 </main>
 
-<footer class="site">
+<footer class="foot">
   <div class="wrap">
     <span>bergg.me</span>
-    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+    <span class="spacer"></span>
+    <a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a>
   </div>
 </footer>
 
+<script src="/assets/console.js" defer></script>
 </body>
 </html>

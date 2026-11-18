@@ -117,6 +117,8 @@
 
     function animateLatency() {
       const target = 12.74;
+      sLat.textContent = target.toFixed(2);          // correct even if rAF never runs
+      if (document.visibilityState !== "visible") return;
       const t0 = performance.now();
       const step = now => {
         const k = clamp((now - t0) / 260, 0, 1);
@@ -178,7 +180,7 @@
         const k = Math.sin(((f - sprint[0]) / (sprint[1] - sprint[0])) * Math.PI);
         e += 0.56 * k;
       }
-      if (f > 150 && f < 166) e += 0.19 * Math.sin(((f - 150) / 16) * Math.PI); // borderline blip
+      if (f > 150 && f < 166) e += 0.30 * Math.sin(((f - 150) / 16) * Math.PI); // borderline blip
       series.push(e);
     }
     const THRESH = 0.34;
@@ -370,14 +372,11 @@
       if (mode.checked) { octx.drawImage(tampered, 0, 0); updateScore(orig, second); return; }
 
       const img = octx.createImageData(W, H);
-      let peak = 0, hot = 0;
       for (let i = 0; i < orig.data.length; i += 4) {
         const dr = Math.abs(orig.data[i] - second.data[i]);
         const dg = Math.abs(orig.data[i + 1] - second.data[i + 1]);
         const db = Math.abs(orig.data[i + 2] - second.data[i + 2]);
         const e = clamp(((dr + dg + db) / 3) * k, 0, 255);
-        if (e > peak) peak = e;
-        if (e > 90) hot++;
         img.data[i] = e * 1.0;
         img.data[i + 1] = e * 0.74;
         img.data[i + 2] = e * 0.28;

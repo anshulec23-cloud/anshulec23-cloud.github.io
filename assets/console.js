@@ -611,7 +611,8 @@
       const ref = document.referrer;
       if (ref) {
         const back = $$(".unit", rack).find(u => {
-          const href = $(".unit-link", u) ? $(".unit-link", u).getAttribute("href") : "";
+          const a = $(".unit-link", u);
+          const href = a ? a.getAttribute("href") : "";
           return href && ref.endsWith(href);
         });
         const h = back && $("h3", back);
@@ -723,6 +724,33 @@
       run = e.isIntersecting;
       if (run) requestAnimationFrame(tick);
     }, { threshold: 0 }).observe(host);
+  }
+
+  /* ---- reveal content as it enters the viewport ---- */
+
+  function reveal() {
+    if (reduced || !("IntersectionObserver" in window)) return;
+    const targets = $$(".unit, .block, .console, .meas");
+    if (!targets.length) return;
+
+    // the hidden state is added from script, so a failed script leaves content visible
+    targets.forEach(el => el.classList.add("rvl"));
+
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("in");
+        obs.unobserve(e.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.01 });
+
+    targets.forEach(el => io.observe(el));
+
+    // anything already on screen should not wait for a scroll
+    requestAnimationFrame(() => targets.forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight && r.bottom > 0) el.classList.add("in");
+    }));
   }
 
   /* ---- command menu ---- */
@@ -857,6 +885,7 @@
     handoff();
     rackKeys();
     band();
+    reveal();
     commandMenu();
     copyLink();
   });

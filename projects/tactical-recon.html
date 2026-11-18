@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BERGG Tactical Recon — bergg.me</title>
+<meta name="description" content="An offline-first navigation and reconnaissance console: local Valhalla routing with OSRM fallback, and wireless telemetry mapped onto the computed route.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../">BERGG</a>
+    <nav class="navlinks">
+      <a href="../#work">Work</a>
+      <a href="https://github.com/anshulec23-cloud/bergg-tactical-recon">Repository</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="wrap ph">
+  <a class="back" href="../#work">&larr; Index</a>
+  <h1>BERGG Tactical Recon</h1>
+  <p class="lede">A privacy-first navigation console that works with no network at all — routing locally from pre-loaded map tiles, falling back to a global service only when you leave them, and sweeping the computed route for wireless telemetry rather than scanning a circle around a pin.</p>
+
+  <dl class="spec">
+    <div><dt>Domain</dt><dd>Navigation / recon</dd></div>
+    <div><dt>Routing</dt><dd>Valhalla (local) + OSRM</dd></div>
+    <div><dt>Stack</dt><dd>JavaScript, Python, Docker</dd></div>
+    <div><dt>Licence</dt><dd>Apache-2.0</dd></div>
+  </dl>
+</div>
+
+<article class="wrap">
+
+<section>
+  <h2>The problem</h2>
+  <p>Consumer navigation makes two assumptions that fail at exactly the moment navigation matters: that you have connectivity, and that you do not mind a third party knowing where you are going.</p>
+  <p>Offline map applications solve the first and usually abandon the second, or they solve both and then cannot route you anywhere outside the tiles you remembered to download. The interesting engineering is in the seam between the two.</p>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <pre class="diagram"><code>route request (A -> B)
+      |
+      v
+  within loaded offline tile bounds?
+      |
+      +-- yes --> Valhalla, running locally in a container
+      |
+      +-- no  --> error intercepted, request re-routed
+                  to OSRM global road API
+      |
+      v
+  map draws both paths
+      dashed blue : shortest
+      solid red   : main highway
+      |
+      v
+  route sweep: Wi-Fi / network telemetry extracted
+               along the path, not around a point</code></pre>
+
+  <h3>Offline-first, with a seam that holds</h3>
+  <p>The fallback is not a toggle the user has to set. The backend attempts the local route, intercepts the out-of-bounds error, and transparently re-sends the waypoints to OSRM. The user sees a route either way; the only difference is where the computation happened and whether anything left the device.</p>
+
+  <h3>Sweeping the route, not the radius</h3>
+  <p>Standard tooling does point-radius scans — pick a location, look at what is around it. A radius around a destination tells you nothing about the twelve kilometres you have to traverse to reach it. Extracting telemetry <em>along</em> the computed path is a different question with a different answer, and it is the one that matters when the journey is the exposure.</p>
+
+  <h3>Two paths, drawn together</h3>
+  <p>Shortest and main-highway routes are rendered simultaneously rather than one replacing the other. Shortest is not always preferable, and showing both lets the operator make a judgement the router cannot make for them.</p>
+
+  <h3>Interface</h3>
+  <p>A glassmorphic HUD overlays translucent panels on an uninterrupted map viewport, and the system boots to a terminal-style landing page requiring explicit initialisation before dropping into the live view. The deliberate boot step is a small thing that makes an operational tool feel operational rather than accidental.</p>
+</section>
+
+<section>
+  <h2>Shipped</h2>
+  <ul class="facts">
+    <li><b>Offline</b><span>Valhalla containers route from pre-loaded tiles with no network</span></li>
+    <li><b>Fallback</b><span>Automatic OSRM handoff when the request leaves tile bounds</span></li>
+    <li><b>Dual path</b><span>Shortest and highway routes rendered at once</span></li>
+    <li><b>Route intel</b><span>Wireless telemetry extracted along the path</span></li>
+    <li><b>Reproducible</b><span>Docker Compose, with setup scripts for both routing engines</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Honest limits</h2>
+  <div class="callout">
+    <span class="k">Use</span>
+    <p>Wireless telemetry collection is governed by local law, and what is legal to observe passively in one jurisdiction is not in another. This is built as a situational-awareness tool for one's own routes; anything aimed at other people is a different thing and not what it is for.</p>
+  </div>
+  <p>Offline routing is only as current as the tiles. A road closed last month is open as far as Valhalla is concerned, and the fallback cannot help because the request never looked out-of-bounds. Tile freshness is the real operational constraint, and it is a human process rather than a software one.</p>
+</section>
+
+<div class="btnrow">
+  <a class="btn" href="https://github.com/anshulec23-cloud/bergg-tactical-recon">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+  <a class="btn" href="../#work">Back to index</a>
+</div>
+
+</article>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>bergg.me</span>
+    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

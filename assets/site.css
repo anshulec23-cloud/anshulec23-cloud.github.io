@@ -68,11 +68,15 @@ a { color: inherit; text-decoration: none; }
   outline-offset: 2px;
 }
 
+/* NOTE: every rule below sets padding-top / padding-bottom only.
+   A padding shorthand on a .wrap element wipes the inline padding. */
+
 .wrap {
   width: 100%;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding-inline: 24px;
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
 /* ---------- typographic primitives ---------- */
@@ -170,7 +174,8 @@ a { color: inherit; text-decoration: none; }
 /* ---------- nameplate ---------- */
 
 .plate {
-  padding: 92px 0 56px;
+  padding-top: 92px;
+  padding-bottom: 56px;
   position: relative;
 }
 
@@ -246,7 +251,7 @@ a { color: inherit; text-decoration: none; }
 /* ---------- section headers ---------- */
 
 .sec {
-  padding: 68px 0 0;
+  padding-top: 68px;
 }
 
 .sec-head {
@@ -534,7 +539,7 @@ svg.fig { display: block; width: 100%; height: auto; }
 
 /* ---------- write-up body ---------- */
 
-.doc { padding: 56px 0 0; }
+.doc { padding-top: 56px; }
 
 .block {
   display: grid;
@@ -629,7 +634,7 @@ svg.fig { display: block; width: 100%; height: auto; }
 
 /* ---------- page head (project) ---------- */
 
-.phead { padding: 54px 0 34px; }
+.phead { padding-top: 54px; padding-bottom: 34px; }
 .phead .back {
   font-family: var(--mono);
   font-size: 11px;
@@ -683,8 +688,8 @@ svg.fig { display: block; width: 100%; height: auto; }
 }
 
 @media (max-width: 720px) {
-  .wrap { padding-inline: 18px; }
-  .plate { padding: 58px 0 40px; }
+  .wrap { padding-left: 18px; padding-right: 18px; }
+  .plate { padding-top: 58px; padding-bottom: 40px; }
   .strip { grid-template-columns: repeat(2, 1fr); }
   .strip > div:nth-child(2) { border-right: 0; }
   .strip > div:nth-child(1), .strip > div:nth-child(2) { border-bottom: 1px solid var(--rule-2); }

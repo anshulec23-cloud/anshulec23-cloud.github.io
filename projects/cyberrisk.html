@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyberRisk Platform — bergg.me</title>
+<meta name="description" content="A five-agent LangGraph pipeline that detects attacks on industrial devices, isolates them, and prices the incident in downtime, SLA penalties and regulatory exposure.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../">BERGG</a>
+    <nav class="navlinks">
+      <a href="../#work">Work</a>
+      <a href="https://github.com/anshulec23-cloud/aegis-bank">Repository</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="wrap ph">
+  <a class="back" href="../#work">&larr; Index</a>
+  <h1>CyberRisk Platform</h1>
+  <p class="lede">Detection is the easy half. This takes an industrial attack and answers the question the people who fund security actually ask: <em>what does this cost us?</em> — in downtime, SLA penalties and regulatory exposure, while the incident is still running.</p>
+
+  <dl class="spec">
+    <div><dt>Domain</dt><dd>OT risk quantification</dd></div>
+    <div><dt>Pipeline</dt><dd>5-agent LangGraph DAG</dd></div>
+    <div><dt>Stack</dt><dd>LangGraph, FastAPI, MQTT, React</dd></div>
+    <div><dt>Reporting</dt><dd>NIST SP 800-61</dd></div>
+  </dl>
+</div>
+
+<article class="wrap">
+
+<section>
+  <h2>The problem</h2>
+  <p>A bank, insurer or lender with exposure to an industrial asset has no good way to turn "the refinery's control network was compromised" into a number. The security tooling speaks in severities and CVEs; the credit committee speaks in currency. Nothing bridges the two while it still matters.</p>
+  <p>This is a cyber incident risk engine with a financial layer on top — explicitly <strong>not</strong> an investment-risk tool. It answers what a given incident on a given asset is likely to cost, and flags the credit consequence.</p>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <pre class="diagram"><code>MQTT telemetry (ICS devices / simulator via Mosquitto)
+      |
+      v
++-------------------- LangGraph DAG --------------------+
+| [1] Detector       Random Forest anomaly score (0.65+) |
+| [2] Classifier     attack type, severity, confidence   |
+| [3] Isolator       micro-segmentation decision         |
+| [4] RiskQuantifier financial blast radius              |
+| [5] Reporter       NIST + credit risk assessment       |
++--------------------------+----------------------------+
+             |             |              |
+             v             v              v
+         FastAPI      SQLite / PG     WebSocket
+          REST                        live dashboard</code></pre>
+
+  <h3>Why a graph and not a function</h3>
+  <p>Each stage is an agent with one job and an explicit contract with the next. Staging it as a DAG rather than a single procedure means a stage can be swapped, re-run or inspected on its own, and the state at every hop is a readable object rather than a local variable buried in a call stack. When an incident report is later disputed, the chain that produced it can be walked backwards.</p>
+
+  <h3>Isolation is an action, not a recommendation</h3>
+  <p>The Isolator does not file a ticket. It publishes micro-segmentation commands over MQTT and cuts the device off. Containment that waits on a human has already lost the time that mattered.</p>
+
+  <h3>What the output looks like</h3>
+  <pre class="diagram"><code>{
+  "attack_type": "PhysicalTamper",
+  "severity": "critical",
+  "device_type": "oil_refinery",
+  "anomaly_score": 0.91,
+  "estimated_downtime_h": 24,
+  "downtime_cost_usd": 19200000,
+  "sla_penalty_usd": 2880000,
+  "regulatory_fine_usd": 1500000,
+  "total_exposure_usd": 23580000,
+  "credit_risk_flag": "CRITICAL"
+}</code></pre>
+  <p>Downtime, SLA and regulatory components are kept separate rather than rolled into a single headline figure, because they have different confidence levels and a reader needs to be able to discount them independently.</p>
+</section>
+
+<section>
+  <h2>Shipped</h2>
+  <ul class="facts">
+    <li><b>Real-time</b><span>Random Forest scoring over a live MQTT stream</span></li>
+    <li><b>Autonomous</b><span>Five-stage agent pipeline, detection through to report</span></li>
+    <li><b>Containment</b><span>MQTT isolation commands, not alerts</span></li>
+    <li><b>Compliant</b><span>Incident reporting structured to NIST SP 800-61</span></li>
+    <li><b>Deployable</b><span>Docker Compose with Mosquitto, FastAPI and the React dashboard</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Honest limits</h2>
+  <div class="callout">
+    <span class="k">Where the numbers come from</span>
+    <p>The financial model is only as good as its per-device cost parameters, which are entered, not learned. Hourly downtime cost, SLA terms and regulatory regime are inputs supplied by whoever configures the asset — the engine does arithmetic on them faithfully and has no way to know when they are optimistic.</p>
+  </div>
+  <p>The example above is a worked output, not a validated prediction. Treating a figure like that as a forecast rather than a parameterised estimate is the failure mode this kind of tool invites, and the reason the components are reported separately.</p>
+</section>
+
+<div class="btnrow">
+  <a class="btn" href="https://github.com/anshulec23-cloud/aegis-bank">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+  <a class="btn" href="../#work">Next project &rarr;</a>
+</div>
+
+</article>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>bergg.me</span>
+    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

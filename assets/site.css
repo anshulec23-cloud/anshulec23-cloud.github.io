@@ -17,7 +17,7 @@
   --ink-2:    #9ca49d;
   --ink-3:    #656d67;
   --ink-4:    #434a45;
-h
+
   /* signal — earned, never decorative */
   --amber:    #f2a33c;
   --amber-dim:#8a5f24;
@@ -842,9 +842,9 @@ select:hover { border-color: var(--amber-dim); }
 /* ============================================================
    v2 — craft pass
    References: cross-document View Transitions (CSS-only opt-in),
-   native scroll-driven animations, and Rauno Freiberg's web
-   interface guidelines (focus rings, <200ms interactions,
-   hover only on hover-capable devices, tabular numerals).
+   and Rauno Freiberg's web interface guidelines (focus rings that
+   follow the shape, interactions under 200ms, hover styles only on
+   hover-capable devices, tabular numerals).
    ============================================================ */
 
 /* ---------- page-to-page continuity ---------- */
@@ -870,21 +870,17 @@ select:hover { border-color: var(--amber-dim); }
 
 html { scroll-padding-top: calc(var(--rail-h) + 20px); scroll-behavior: smooth; }
 
-/* ---------- scroll-driven reveal (no JS) ---------- */
+/* ---------- reveal on entry ----------
+   Deliberately not scroll-driven: a `view()` timeline never finishes
+   its range for elements near the document bottom, which leaves them
+   stuck at partial opacity. An observer is boring and always lands. */
 
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .unit, .block, .console, .meas {
-      animation: lift linear both;
-      animation-timeline: view();
-      animation-range: entry 2% entry 36%;
-    }
-  }
+.rvl {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .45s cubic-bezier(.2,.8,.2,1), transform .45s cubic-bezier(.2,.8,.2,1);
 }
-@keyframes lift {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: none; }
-}
+.rvl.in { opacity: 1; transform: none; }
 
 /* ---------- hover only where hover exists ---------- */
 
@@ -1079,4 +1075,5 @@ a, button, .unit, .switch { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
   html { scroll-behavior: auto; }
+  .rvl { opacity: 1; transform: none; }
 }

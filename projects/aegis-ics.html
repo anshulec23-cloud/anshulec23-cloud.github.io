@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aegis ICS — bergg.me</title>
+<meta name="description" content="A zero-trust security gateway and physical safety enforcer for industrial control systems: inline setpoint validation, ML anomaly detection, and sub-15 ms relay cut-off.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../">BERGG</a>
+    <nav class="navlinks">
+      <a href="../#work">Work</a>
+      <a href="https://github.com/anshulec23-cloud/aegis-ics">Repository</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="wrap ph">
+  <a class="back" href="../#work">&larr; Index</a>
+  <h1>Aegis ICS</h1>
+  <p class="lede">A zero-trust gateway that sits <em>inline</em> between industrial field devices and the control network — validating every frame, testing every setpoint against physical stability limits, and cutting power to a relay when a command would push the process somewhere it cannot come back from.</p>
+
+  <dl class="spec">
+    <div><dt>Domain</dt><dd>ICS / OT security</dd></div>
+    <div><dt>Release</dt><dd>v2.6.0</dd></div>
+    <div><dt>Stack</dt><dd>Python, Flask, PyWebView, ESP32</dd></div>
+    <div><dt>Licence</dt><dd>Apache-2.0</dd></div>
+  </dl>
+</div>
+
+<article class="wrap">
+
+<section>
+  <h2>The problem</h2>
+  <p>A conventional industrial IDS sniffs network traffic and raises an alert. By the time anyone reads it, the command has already reached the actuator. Physical processes do not wait for a SOC queue.</p>
+  <p>Four failure modes drove the design:</p>
+  <ul>
+    <li><strong>Coordinated multi-variable stress.</strong> A setpoint that is harmless on its own threshold alarm can destroy equipment when combined with another variable's current state — raising temperature while pressure is already elevated. Single-variable alarms are structurally blind to this.</li>
+    <li><strong>Field device hijacking and replay.</strong> Industrial fieldbuses are usually unauthenticated. Anyone with bus access can inject forged telemetry or setpoints.</li>
+    <li><strong>Telemetry staleness.</strong> When sensors drop out, traditional interlocks tend to fail <em>open</em> — they skip the cross-variable check rather than refusing the command.</li>
+    <li><strong>Uncontained cascades.</strong> A compromised node stays on the control network while someone decides what to do about it.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <pre class="diagram"><code>ESP32 field node
+      |  signed frame (HMAC-SHA256, boot + sequence no.)
+      v
+[ 1 ] INGEST        schema -> freshness (&lt;120 s) -> signature
+      |                                fail -> reject, fail closed
+      v
+[ 2 ] TRUST         continuous per-device trust score
+      |
+      v
+[ 3 ] SAFETY POLICY 6D neural policy + deterministic invariants
+      |             setpoint tested against stability manifold
+      v
+[ 4 ] ENFORCE       de-energise optocoupler relay, GPIO 25
+      |             measured at 12.74 ms
+      v
+[ 5 ] CLASSIFY      Random Forest names the attack; loss engine
+                    prices it; NIST SP 800 report is generated</code></pre>
+
+  <h3>Zero-trust by default</h3>
+  <p>Every sensor frame is checked three ways before it is allowed to influence anything: schema structure, timestamp freshness under 120 seconds, and a FIPS 198-1 HMAC-SHA256 signature over a canonical serialisation. A frame that fails any check is dropped, and a setpoint arriving without fresh telemetry behind it is <strong>refused</strong> rather than waved through. Fail-closed, not fail-open.</p>
+
+  <h3>Keys nobody has to provision</h3>
+  <p>New ESP32 slaves announce themselves on the bus and the operator approves each one with a click. Session keys are derived per device with X25519 and HKDF-SHA256 — no shared secret, no pre-provisioned key material, and one firmware image for every node because device IDs are derived from the MAC. Boot and sequence numbers in each frame make replay detectable.</p>
+
+  <h3>The part worth arguing about</h3>
+  <p>The machine-learning classifier does <strong>not</strong> decide whether to quarantine a device. Deterministic rules and the trust score do that. The Random Forest only <em>names</em> the attack — <code>fdi_spike</code>, <code>stuxnet</code>, <code>thermal_drift</code>, <code>sensor_fault</code>, <code>normal</code> — and hands that label, with its confidence and the matching MITRE ATT&amp;CK for ICS technique, to the reporting and financial layers.</p>
+  <p>That split is deliberate. A model that goes quiet, drifts, or is adversarially nudged cannot weaken the defensive response, because the response was never conditional on it. The ML makes the incident <em>legible</em>; the rules make it <em>safe</em>.</p>
+</section>
+
+<section>
+  <h2>Measured</h2>
+  <ul class="facts">
+    <li><b>12.74 ms</b><span>Relay de-energisation, anomaly detection to physical cut-off on GPIO 25</span></li>
+    <li><b>0.9755 ROC-AUC</b><span>5-variable Random Forest anomaly classifier</span></li>
+    <li><b>96.08%</b><span>Validation accuracy, 6D neural safety policy network</span></li>
+    <li><b>&lt;120 s</b><span>Telemetry staleness gate before setpoints are refused</span></li>
+    <li><b>Offline</b><span>Both models run locally — no cloud inference path to sever or intercept</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Beyond detection</h2>
+  <p>Each approved device carries a financial profile. When an incident is live, the loss engine computes actual loss, projected loss if left unfixed, the catastrophe avoided, time-to-fix and restabilisation cost, expressed through FAIR and regulatory exposure. A one-click report maps the whole thing onto NIST SP 800 controls with ML-selected mitigations and recovery times.</p>
+  <p>Operator actions — logins, setpoint changes, rule edits — are logged against the verified 3D spatial coordinates of the terminal they came from, so an insider action has a location attached to it and not just a username.</p>
+  <p>A localhost-only, token-authenticated red-team backend drives a staged eight-attack campaign against the running system so the defence and the loss numbers can be exercised rather than asserted.</p>
+</section>
+
+<section>
+  <h2>Honest limits</h2>
+  <div class="callout">
+    <span class="k">Scope</span>
+    <p>The portable USB attack-drill runner is distributed separately and is not in this repository. Where the README and <code>docs/</code> disagree, <code>docs/</code> reflects the actual code — it is the authoritative reference.</p>
+  </div>
+  <p>The physical enforcement path has been exercised on an ESP32 testbench with simulated process dynamics, not on a production plant. The stability manifolds encode a model of the process; a model that is wrong about the physics will be confidently wrong about safety, which is why the deterministic invariants sit alongside it rather than behind it.</p>
+</section>
+
+<div class="btnrow">
+  <a class="btn" href="https://github.com/anshulec23-cloud/aegis-ics">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    Source
+  </a>
+  <a class="btn" href="../#work">Next project &rarr;</a>
+</div>
+
+</article>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>bergg.me</span>
+    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

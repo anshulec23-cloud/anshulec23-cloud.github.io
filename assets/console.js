@@ -751,6 +751,11 @@
       const r = el.getBoundingClientRect();
       if (r.top < innerHeight && r.bottom > 0) el.classList.add("in");
     }));
+
+    // Guarantee. Both the observer and rAF depend on the page actually
+    // rendering; a timer does not. Content is never allowed to stay
+    // hidden because an entrance effect failed to run.
+    setTimeout(() => targets.forEach(el => el.classList.add("in")), 900);
   }
 
   /* ---- command menu ---- */

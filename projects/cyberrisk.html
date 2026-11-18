@@ -4,120 +4,198 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CyberRisk Platform — bergg.me</title>
-<meta name="description" content="A five-agent LangGraph pipeline that detects attacks on industrial devices, isolates them, and prices the incident in downtime, SLA penalties and regulatory exposure.">
-<link rel="stylesheet" href="../assets/site.css">
+<meta name="description" content="A five-agent LangGraph pipeline that detects OT attacks, isolates the device and prices the incident. Drive the loss engine in the browser.">
+<meta name="theme-color" content="#0b0d0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0d0c'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23f2a33c' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 
-<header class="topbar">
+<header class="rail">
   <div class="wrap">
-    <a class="brand" href="../">BERGG</a>
-    <nav class="navlinks">
-      <a href="../#work">Work</a>
-      <a href="https://github.com/anshulec23-cloud/aegis-bank">Repository</a>
+    <a class="rail-brand" href="/">BERGG</a>
+    <nav class="rail-nav">
+      <a href="/#systems">Index</a>
+      <a href="https://github.com/anshulec23-cloud/aegis-bank">Source</a>
     </nav>
+    <div class="rail-status">
+      <span class="utc num" data-utc>--:--:--</span>
+      <span class="lamp on" aria-hidden="true"></span>
+      <span>UNIT 04</span>
+    </div>
   </div>
 </header>
 
 <main>
 
-<div class="wrap ph">
-  <a class="back" href="../#work">&larr; Index</a>
+<section class="wrap phead">
+  <a class="back" href="/#systems">← Index</a>
   <h1>CyberRisk Platform</h1>
-  <p class="lede">Detection is the easy half. This takes an industrial attack and answers the question the people who fund security actually ask: <em>what does this cost us?</em> — in downtime, SLA penalties and regulatory exposure, while the incident is still running.</p>
+  <p class="lede">Detection is the easy half. This takes an industrial attack and answers the question the people who fund security actually ask — <em>what does this cost us?</em> — in downtime, SLA penalties and regulatory exposure, while the incident is still running.</p>
+</section>
 
-  <dl class="spec">
+<section class="wrap">
+
+  <div class="console" data-demo="loss">
+    <div class="console-bar">
+      <span class="tag">Console 04 · loss engine</span>
+      <span class="spacer"></span>
+      <span class="lamp on" data-lamp aria-hidden="true"></span>
+      <span class="tag">live</span>
+    </div>
+
+    <div class="console-body">
+
+      <div class="pipeline">
+        <div data-stage class="lit"><span class="n">01</span><span class="l">Detector</span></div>
+        <div data-stage class="lit"><span class="n">02</span><span class="l">Classifier</span></div>
+        <div data-stage class="lit"><span class="n">03</span><span class="l">Isolator</span></div>
+        <div data-stage class="lit"><span class="n">04</span><span class="l">Quantifier</span></div>
+        <div data-stage class="lit"><span class="n">05</span><span class="l">Reporter</span></div>
+      </div>
+
+      <div class="grid-2">
+
+        <div>
+          <div class="row">
+            <label for="as">Asset profile</label>
+            <select id="as" data-asset>
+              <option value="oil_refinery">Oil refinery</option>
+              <option value="grid_substation">Grid substation</option>
+              <option value="water_utility">Water utility</option>
+              <option value="bottling_line">Bottling line</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label for="rg">Regulatory regime</label>
+            <select id="rg" data-reg>
+              <option value="nis2">EU NIS2</option>
+              <option value="ferc">US FERC / NERC CIP</option>
+              <option value="cert">IN CERT-In</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+
+          <div class="ctrl" style="margin-top:20px">
+            <div class="ctrl-head">
+              <label for="h">Estimated downtime</label>
+              <output data-hours-out id="hout">24 h</output>
+            </div>
+            <input id="h" type="range" data-hours min="1" max="96" step="1" value="24">
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl-head">
+              <label for="r">Hourly loss rate</label>
+              <output data-rate-out id="rout">$800k/h</output>
+            </div>
+            <input id="r" type="range" data-rate min="10" max="1200" step="10" value="800">
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl-head">
+              <label for="sl">SLA penalty rate</label>
+              <output data-sla-out id="sout">15%</output>
+            </div>
+            <input id="sl" type="range" data-sla min="0" max="40" step="1" value="15">
+          </div>
+        </div>
+
+        <div>
+          <dl class="stack">
+            <div><dt>Downtime cost</dt><dd data-down>—</dd></div>
+            <div><dt>SLA penalty</dt><dd data-slapen>—</dd></div>
+            <div><dt>Regulatory</dt><dd data-fine>—</dd></div>
+            <div><dt>Total exposure</dt><dd class="big" data-total>—</dd></div>
+            <div><dt>Credit risk</dt><dd data-flag class="is-ok">—</dd></div>
+          </dl>
+          <div class="log" data-log style="margin-top:16px" aria-live="polite"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="console-note">Simulation. The arithmetic is the platform's — downtime × rate, SLA as a share of it, a fixed regulatory band — driven by parameters you set, exactly as the real engine is driven by parameters an operator sets. No model is predicting anything here, and none does in the platform either.</p>
+  </div>
+
+  <dl class="strip" style="margin-top:34px">
     <div><dt>Domain</dt><dd>OT risk quantification</dd></div>
     <div><dt>Pipeline</dt><dd>5-agent LangGraph DAG</dd></div>
-    <div><dt>Stack</dt><dd>LangGraph, FastAPI, MQTT, React</dd></div>
+    <div><dt>Stack</dt><dd>LangGraph · FastAPI · MQTT</dd></div>
     <div><dt>Reporting</dt><dd>NIST SP 800-61</dd></div>
   </dl>
-</div>
 
-<article class="wrap">
-
-<section>
-  <h2>The problem</h2>
-  <p>A bank, insurer or lender with exposure to an industrial asset has no good way to turn "the refinery's control network was compromised" into a number. The security tooling speaks in severities and CVEs; the credit committee speaks in currency. Nothing bridges the two while it still matters.</p>
-  <p>This is a cyber incident risk engine with a financial layer on top — explicitly <strong>not</strong> an investment-risk tool. It answers what a given incident on a given asset is likely to cost, and flags the credit consequence.</p>
 </section>
 
-<section>
-  <h2>How it works</h2>
-  <pre class="diagram"><code>MQTT telemetry (ICS devices / simulator via Mosquitto)
-      |
-      v
-+-------------------- LangGraph DAG --------------------+
-| [1] Detector       Random Forest anomaly score (0.65+) |
-| [2] Classifier     attack type, severity, confidence   |
-| [3] Isolator       micro-segmentation decision         |
-| [4] RiskQuantifier financial blast radius              |
-| [5] Reporter       NIST + credit risk assessment       |
-+--------------------------+----------------------------+
-             |             |              |
-             v             v              v
-         FastAPI      SQLite / PG     WebSocket
-          REST                        live dashboard</code></pre>
+<section class="wrap doc">
 
-  <h3>Why a graph and not a function</h3>
-  <p>Each stage is an agent with one job and an explicit contract with the next. Staging it as a DAG rather than a single procedure means a stage can be swapped, re-run or inspected on its own, and the state at every hop is a readable object rather than a local variable buried in a call stack. When an incident report is later disputed, the chain that produced it can be walked backwards.</p>
-
-  <h3>Isolation is an action, not a recommendation</h3>
-  <p>The Isolator does not file a ticket. It publishes micro-segmentation commands over MQTT and cuts the device off. Containment that waits on a human has already lost the time that mattered.</p>
-
-  <h3>What the output looks like</h3>
-  <pre class="diagram"><code>{
-  "attack_type": "PhysicalTamper",
-  "severity": "critical",
-  "device_type": "oil_refinery",
-  "anomaly_score": 0.91,
-  "estimated_downtime_h": 24,
-  "downtime_cost_usd": 19200000,
-  "sla_penalty_usd": 2880000,
-  "regulatory_fine_usd": 1500000,
-  "total_exposure_usd": 23580000,
-  "credit_risk_flag": "CRITICAL"
-}</code></pre>
-  <p>Downtime, SLA and regulatory components are kept separate rather than rolled into a single headline figure, because they have different confidence levels and a reader needs to be able to discount them independently.</p>
-</section>
-
-<section>
-  <h2>Shipped</h2>
-  <ul class="facts">
-    <li><b>Real-time</b><span>Random Forest scoring over a live MQTT stream</span></li>
-    <li><b>Autonomous</b><span>Five-stage agent pipeline, detection through to report</span></li>
-    <li><b>Containment</b><span>MQTT isolation commands, not alerts</span></li>
-    <li><b>Compliant</b><span>Incident reporting structured to NIST SP 800-61</span></li>
-    <li><b>Deployable</b><span>Docker Compose with Mosquitto, FastAPI and the React dashboard</span></li>
-  </ul>
-</section>
-
-<section>
-  <h2>Honest limits</h2>
-  <div class="callout">
-    <span class="k">Where the numbers come from</span>
-    <p>The financial model is only as good as its per-device cost parameters, which are entered, not learned. Hourly downtime cost, SLA terms and regulatory regime are inputs supplied by whoever configures the asset — the engine does arithmetic on them faithfully and has no way to know when they are optimistic.</p>
+  <div class="block">
+    <div class="block-label"><span class="n">01</span><span class="t">Problem</span></div>
+    <div class="prose">
+      <p>A bank, insurer or lender with exposure to an industrial asset has no good way to turn "the refinery's control network was compromised" into a number. The security tooling speaks in severities and CVEs; the credit committee speaks in currency. Nothing bridges the two while it still matters.</p>
+      <p>This is a cyber incident risk engine with a financial layer on top — explicitly <strong>not</strong> an investment-risk tool. It answers what a given incident on a given asset is likely to cost, and flags the credit consequence.</p>
+    </div>
   </div>
-  <p>The example above is a worked output, not a validated prediction. Treating a figure like that as a forecast rather than a parameterised estimate is the failure mode this kind of tool invites, and the reason the components are reported separately.</p>
+
+  <div class="block">
+    <div class="block-label"><span class="n">02</span><span class="t">Design</span></div>
+    <div class="prose">
+      <h3>Why a graph and not a function</h3>
+      <p>Each stage is an agent with one job and an explicit contract with the next: detector, classifier, isolator, quantifier, reporter. Staging it as a DAG rather than one procedure means a stage can be swapped, re-run or inspected alone, and the state at every hop is a readable object rather than a local variable buried in a call stack. When an incident report is later disputed, the chain that produced it can be walked backwards.</p>
+
+      <h3>Isolation is an action, not a recommendation</h3>
+      <p>The isolator does not file a ticket. It publishes micro-segmentation commands over MQTT and cuts the device off. Containment that waits on a human has already lost the time that mattered.</p>
+
+      <h3>Components stay separate</h3>
+      <p>Downtime, SLA and regulatory exposure are reported individually rather than rolled into one headline figure, because they carry very different confidence. Downtime cost is an estimate of an estimate; a regulatory band is closer to a known quantity. A reader needs to be able to discount them independently — which is why the console shows all four lines rather than just the total.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">03</span><span class="t">Shipped</span></div>
+    <div class="prose">
+      <dl class="meas">
+        <div><dt>Real-time</dt><dd>Random Forest scoring over a live MQTT stream, trigger at 0.65</dd></div>
+        <div><dt>Autonomous</dt><dd>Five-stage agent pipeline, detection through to report</dd></div>
+        <div><dt>Containment</dt><dd>MQTT isolation commands, not alerts</dd></div>
+        <div><dt>Compliant</dt><dd>Incident reporting structured to NIST SP 800-61</dd></div>
+        <div><dt>Deployable</dt><dd>Docker Compose with Mosquitto, FastAPI and the React dashboard</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">04</span><span class="t">Limits</span></div>
+    <div class="prose">
+      <div class="caveat">
+        <span class="k">Where the numbers come from</span>
+        <p>The financial model is only as good as its per-device cost parameters, which are entered, not learned. Hourly downtime cost, SLA terms and regulatory regime are inputs supplied by whoever configures the asset. The engine does arithmetic on them faithfully and has no way to know when they are optimistic.</p>
+      </div>
+      <p>That is also the honest reading of the console above: every figure it produces is a consequence of sliders you set. Treating such an output as a forecast rather than a parameterised estimate is the failure mode this class of tool invites, and the separation of components is the main defence against it.</p>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin:40px 0 0">
+    <a class="btn" href="https://github.com/anshulec23-cloud/aegis-bank">Read the source</a>
+    <a class="btn" href="/projects/tactical-recon.html">Unit 05 — Tactical Recon →</a>
+  </div>
+
 </section>
 
-<div class="btnrow">
-  <a class="btn" href="https://github.com/anshulec23-cloud/aegis-bank">
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-    Source
-  </a>
-  <a class="btn" href="../#work">Next project &rarr;</a>
-</div>
-
-</article>
 </main>
 
-<footer class="site">
+<footer class="foot">
   <div class="wrap">
     <span>bergg.me</span>
-    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+    <span class="spacer"></span>
+    <a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a>
   </div>
 </footer>
 
+<script src="/assets/console.js" defer></script>
 </body>
 </html>

@@ -4,115 +4,174 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Image Forgery Detector — bergg.me</title>
-<meta name="description" content="Document fraud screening with a dual-stream ResNet18 over raw RGB and Error Level Analysis, explained with Grad-CAM.">
-<link rel="stylesheet" href="../assets/site.css">
+<meta name="description" content="Document fraud screening with a dual-stream ResNet18 over raw pixels and error level analysis. Real ELA runs in your browser on this page.">
+<meta name="theme-color" content="#0b0d0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0d0c'/%3E%3Crect x='7' y='7' width='18' height='18' fill='none' stroke='%23f2a33c' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 
-<header class="topbar">
+<header class="rail">
   <div class="wrap">
-    <a class="brand" href="../">BERGG</a>
-    <nav class="navlinks">
-      <a href="../#work">Work</a>
-      <a href="https://github.com/anshulec23-cloud/image-forgery-detection">Repository</a>
+    <a class="rail-brand" href="/">BERGG</a>
+    <nav class="rail-nav">
+      <a href="/#systems">Index</a>
+      <a href="https://github.com/anshulec23-cloud/image-forgery-detection">Source</a>
     </nav>
+    <div class="rail-status">
+      <span class="utc num" data-utc>--:--:--</span>
+      <span class="lamp on" aria-hidden="true"></span>
+      <span>UNIT 03</span>
+    </div>
   </div>
 </header>
 
 <main>
 
-<div class="wrap ph">
-  <a class="back" href="../#work">&larr; Index</a>
+<section class="wrap phead">
+  <a class="back" href="/#systems">← Index</a>
   <h1>Image Forgery Detector</h1>
-  <p class="lede">Screening financial and legal documents for manipulation by reading the compression history of an image rather than its content — and showing an analyst exactly which region drove the verdict.</p>
+  <p class="lede">Screening financial and legal documents for manipulation by reading the compression history of an image rather than its content — and showing an analyst which region drove the verdict.</p>
+</section>
 
-  <dl class="spec">
+<section class="wrap">
+
+  <div class="console" data-demo="ela">
+    <div class="console-bar">
+      <span class="tag">Console 03 · error level analysis</span>
+      <span class="spacer"></span>
+      <span class="lamp on" data-lamp aria-hidden="true"></span>
+      <span class="tag">real</span>
+    </div>
+
+    <div class="console-body">
+      <div class="grid-2">
+
+        <div>
+          <div class="canvasbox">
+            <canvas data-out width="420" height="270" aria-label="Error level analysis of the sample invoice"></canvas>
+          </div>
+
+          <div class="ctrl" style="margin-top:18px">
+            <div class="ctrl-head">
+              <label for="a">Residual amplification</label>
+              <output data-amp-out id="aout">×14</output>
+            </div>
+            <input id="a" type="range" data-amp min="1" max="30" step="1" value="14">
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl-head">
+              <label for="q">Recompression quality</label>
+              <output data-q-out id="qout">95%</output>
+            </div>
+            <input id="q" type="range" data-q min="70" max="98" step="1" value="95">
+          </div>
+
+          <div class="row">
+            <label for="m">Show source document</label>
+            <span class="switch"><input id="m" type="checkbox" data-mode><i></i></span>
+          </div>
+        </div>
+
+        <div>
+          <dl class="stack">
+            <div><dt>Verdict</dt><dd data-verdict class="is-ok">UNIFORM</dd></div>
+            <div><dt>Region / page ratio</dt><dd class="big" data-score>1.00×</dd></div>
+            <div><dt>Flag above</dt><dd>1.80×</dd></div>
+            <div><dt>Method</dt><dd style="font-size:11px">ELA · q-step diff</dd></div>
+            <div><dt>Classifier</dt><dd style="font-size:11px">not running here</dd></div>
+          </dl>
+          <div class="log" data-log style="margin-top:16px" aria-live="polite"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <p class="console-note">Real, not simulated: the page builds a sample invoice, re-saves one field so that region has a different compression history, then computes error level analysis on your machine — recompress, difference, amplify. The CNN is not running here. The bright band over the total is the edit.</p>
+  </div>
+
+  <dl class="strip" style="margin-top:34px">
     <div><dt>Domain</dt><dd>Image forensics</dd></div>
-    <div><dt>Classes</dt><dd>Real / tampered / AI-generated</dd></div>
-    <div><dt>Stack</dt><dd>PyTorch, ResNet18, Streamlit</dd></div>
+    <div><dt>Classes</dt><dd>real · tampered · ai_generated</dd></div>
+    <div><dt>Stack</dt><dd>PyTorch · ResNet18 · Streamlit</dd></div>
     <div><dt>Licence</dt><dd>Apache-2.0</dd></div>
   </dl>
-</div>
 
-<article class="wrap">
-
-<section>
-  <h2>The problem</h2>
-  <p>A forged payslip, invoice or certificate is usually not a crude cut-and-paste any more. It is a competent edit, exported once, and it looks correct to a human reviewer with forty of them to clear before lunch.</p>
-  <p>The giveaway is rarely visible in the picture. It is in the <em>compression history</em>: a region that has been through a different number of JPEG generations than its surroundings carries a different error signature, whatever it looks like to the eye.</p>
 </section>
 
-<section>
-  <h2>How it works</h2>
-  <pre class="diagram"><code>uploaded image
-      |
-      +--> RGB stream ---- resize 224x224, normalise --> ResNet18 --+
-      |                                                             |
-      |                                                  concat 512+512
-      |                                                             |
-      +--> ELA stream ---- JPEG q=95 recompress                     |
-                           residual x15 amplify                     |
-                           resize 224x224 -------------> ResNet18 --+
-                                                                    |
-                                                                    v
-                                                          fusion head (1024)
-                                                                    |
-                                                                    v
-                                            [ real | tampered | ai_generated ]
-                                                                    |
-                                                        Grad-CAM over final conv</code></pre>
+<section class="wrap doc">
 
-  <h3>Two streams, because one is not enough</h3>
-  <p>Error Level Analysis alone is brittle — it reacts to any recompression, including innocent ones, and a detector built on it flags half the internet. Raw RGB alone misses the forensic signal entirely and learns content instead of provenance.</p>
-  <p>Running both through separate ResNet18 backbones and concatenating the 512-dimensional features into a single fusion head lets the classifier weigh them against each other: <em>unusual compression residue in a region whose content also looks off</em> is a far stronger signal than either on its own.</p>
-
-  <h3>Three classes, not two</h3>
-  <p>Splitting <code>ai_generated</code> out from <code>tampered</code> matters because the two failure modes are different problems. A spliced region in a real photo and a wholly synthesised image have almost nothing in common forensically, and collapsing them into one "fake" class forces the model to learn an incoherent boundary.</p>
-
-  <h3>Training it in two phases</h3>
-  <p>Epochs 1–3 train the classification head alone with both backbones frozen, so the randomly initialised head does not blow gradients back through pretrained features. From epoch 4 the whole network fine-tunes at the configured learning rate. The best validation checkpoint is kept automatically.</p>
-
-  <h3>Explanation is part of the output</h3>
-  <p>Grad-CAM hooks the final convolutional layer and produces a heat map over the suspect region. For a screening tool this is not decoration — an analyst cannot act on a bare probability, and a highlighted region is what makes the verdict checkable by a human who disagrees with it.</p>
-</section>
-
-<section>
-  <h2>Built to be run</h2>
-  <ul class="facts">
-    <li><b>Interactive</b><span>ELA quality, amplification factor and Grad-CAM blend are live sidebar controls</span></li>
-    <li><b>Demo weights</b><span>A generator script produces random-init weights so the pipeline runs before any training</span></li>
-    <li><b>On-the-fly ELA</b><span>Computed inside the dataset class — no pre-processed second copy of the corpus on disk</span></li>
-    <li><b>CI</b><span>pytest suite wired to GitHub Actions</span></li>
-  </ul>
-</section>
-
-<section>
-  <h2>Honest limits</h2>
-  <div class="callout">
-    <span class="k">Read this before judging the numbers</span>
-    <p>The repository ships the pipeline and the training loop, not trained weights. The demo weights are randomly initialised: the application runs end to end, but its predictions are meaningless until you train on a real corpus. Any accuracy claim would have to come from your own run.</p>
+  <div class="block">
+    <div class="block-label"><span class="n">01</span><span class="t">Problem</span></div>
+    <div class="prose">
+      <p>A forged payslip, invoice or certificate is rarely a crude cut-and-paste any more. It is a competent edit, exported once, and it looks correct to a reviewer with forty of them to clear before lunch.</p>
+      <p>The giveaway is usually not visible in the picture. It is in the <strong>compression history</strong>: a region that has been through a different number of JPEG generations than its surroundings carries a different error signature, whatever it looks like to the eye. That is precisely what the console above exposes — the numbers in the body of the invoice have been compressed twice, the altered total only once.</p>
+    </div>
   </div>
-  <p>ELA is also a dated signal. It is strong against conventional splicing and retouching, and weaker against modern generative models that never produce an intermediate JPEG at all — which is exactly why the raw RGB stream carries the <code>ai_generated</code> class rather than ELA doing all the work.</p>
-  <p>Recommended public datasets for training are listed in the README: CASIA v2.0 and RAISE for real and tampered, ArtiFact and CIFAKE for generated.</p>
+
+  <div class="block">
+    <div class="block-label"><span class="n">02</span><span class="t">Design</span></div>
+    <div class="prose">
+      <h3>Two streams, because one is not enough</h3>
+      <p>Error level analysis alone is brittle. It reacts to any recompression, including innocent ones, and a detector built on it flags half the internet — drag the quality slider down in the console and watch the whole page light up. Raw RGB alone misses the forensic signal entirely and learns content instead of provenance.</p>
+      <p>Running both through separate ResNet18 backbones and concatenating the 512-dimensional features into one fusion head lets the classifier weigh them against each other: <em>unusual compression residue in a region whose content also looks off</em> is a far stronger signal than either alone.</p>
+
+      <h3>Three classes, not two</h3>
+      <p>Splitting <code>ai_generated</code> out from <code>tampered</code> matters because the failure modes are different problems. A spliced region in a real photograph and a wholly synthesised image have almost nothing in common forensically, and collapsing them into one "fake" class forces the model to learn an incoherent boundary.</p>
+
+      <h3>Two-phase training</h3>
+      <p>Epochs 1–3 train the classification head alone with both backbones frozen, so a randomly initialised head does not blow gradients back through pretrained features. From epoch 4 the whole network fine-tunes at the configured rate. The best validation checkpoint is kept automatically.</p>
+
+      <h3>Explanation is part of the output</h3>
+      <p>Grad-CAM hooks the final convolutional layer and produces a heat map over the suspect region. For a screening tool this is not decoration — an analyst cannot act on a bare probability, and a highlighted region is what makes a verdict checkable by someone who disagrees with it.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">03</span><span class="t">Built to run</span></div>
+    <div class="prose">
+      <dl class="meas">
+        <div><dt>Interactive</dt><dd>ELA quality, amplification and Grad-CAM blend are live controls</dd></div>
+        <div><dt>Demo weights</dt><dd>A generator script produces random-init weights so the pipeline runs before training</dd></div>
+        <div><dt>On-the-fly</dt><dd>ELA computed inside the dataset class — no second copy of the corpus on disk</dd></div>
+        <div><dt>CI</dt><dd>pytest suite wired to GitHub Actions</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-label"><span class="n">04</span><span class="t">Limits</span></div>
+    <div class="prose">
+      <div class="caveat">
+        <span class="k">Read this before judging the numbers</span>
+        <p>The repository ships the pipeline and the training loop, not trained weights. The demo weights are randomly initialised: the application runs end to end, but its predictions are meaningless until it is trained on a real corpus. Any accuracy figure would have to come from your own run.</p>
+      </div>
+      <p>ELA is also a dated signal. It is strong against conventional splicing and retouching and weak against modern generative models, which never produce an intermediate JPEG at all — which is exactly why the raw-pixel stream carries the <code>ai_generated</code> class rather than ELA doing all the work.</p>
+      <p>Recommended public datasets are listed in the README: CASIA v2.0 and RAISE for real and tampered, ArtiFact and CIFAKE for generated.</p>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin:40px 0 0">
+    <a class="btn" href="https://github.com/anshulec23-cloud/image-forgery-detection">Read the source</a>
+    <a class="btn" href="/projects/cyberrisk.html">Unit 04 — CyberRisk →</a>
+  </div>
+
 </section>
 
-<div class="btnrow">
-  <a class="btn" href="https://github.com/anshulec23-cloud/image-forgery-detection">
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-    Source
-  </a>
-  <a class="btn" href="../#work">Next project &rarr;</a>
-</div>
-
-</article>
 </main>
 
-<footer class="site">
+<footer class="foot">
   <div class="wrap">
     <span>bergg.me</span>
-    <span><a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a></span>
+    <span class="spacer"></span>
+    <a href="https://github.com/anshulec23-cloud">github.com/anshulec23-cloud</a>
   </div>
 </footer>
 
+<script src="/assets/console.js" defer></script>
 </body>
 </html>

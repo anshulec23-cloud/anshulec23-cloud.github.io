@@ -24,6 +24,7 @@
     <nav class="rail-nav">
       <a href="#systems" aria-current="true">Systems</a>
       <a href="#stack">Stack</a>
+      <a href="#neural">Neural map</a>
       <a href="https://github.com/anshulec23-cloud">Source</a>
     </nav>
     <div class="rail-status">
@@ -149,6 +150,29 @@
   </dl>
 </section>
 
+<section class="wrap sec" id="neural">
+  <div class="sec-head">
+    <span class="tag">C</span>
+    <h2>Aegis neural map</h2>
+  </div>
+
+  <div class="console" data-demo="neural">
+    <div class="console-bar">
+      <span class="tag">Console 06 · system topology</span>
+      <span class="spacer"></span>
+      <a class="tag neural-open" href="/neural/aegis-neural.html">Open full screen ↗</a>
+    </div>
+    <div class="neural-stage" id="neuralStage">
+      <button class="neural-launch" type="button" id="neuralLaunch" aria-label="Load the interactive 3D neural map">
+        <span class="neural-launch-ring" aria-hidden="true"></span>
+        <span class="neural-launch-label">Launch 3D map</span>
+        <span class="neural-launch-sub">36 components · 54 relationships · loads a graphics library</span>
+      </button>
+    </div>
+    <p class="console-note">Every node is a real module of the Aegis ICS gateway and every link is a real data path between them. Drag to orbit, scroll to zoom, click a node. Loads only when launched, so the page stays light.</p>
+  </div>
+</section>
+
 </main>
 
 <footer class="foot">
@@ -160,5 +184,22 @@
 </footer>
 
 <script src="/assets/console.js" defer></script>
+<script>
+(() => {
+  const btn = document.getElementById("neuralLaunch");
+  const stage = document.getElementById("neuralStage");
+  if (!btn || !stage) return;
+  btn.addEventListener("click", () => {
+    const f = document.createElement("iframe");
+    f.src = "/neural/aegis-neural.html";
+    f.title = "Aegis ICS interactive neural map";
+    f.loading = "lazy";
+    f.setAttribute("allowfullscreen", "");
+    f.className = "neural-frame";
+    stage.replaceChildren(f);
+  });
+})();
+</script>
+
 </body>
 </html>

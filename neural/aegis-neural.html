@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Aegis ICS — Neural Map</title>
+<style>
+  html,body{margin:0;height:100%;background:#0b0d0c;color:#e8eefc;font-family:"Segoe UI",system-ui,Arial,sans-serif;overflow:hidden}
+  #graph{position:fixed;inset:0}
+  .panel{position:fixed;z-index:10;background:rgba(10,14,26,.72);backdrop-filter:blur(8px);border:1px solid rgba(120,160,255,.18);border-radius:12px}
+  #title{top:18px;left:18px;padding:14px 18px;max-width:340px}
+  #title h1{margin:0;font-size:18px;letter-spacing:.5px}
+  #title h1 span{color:#22d3ee}
+  #title p{margin:6px 0 0;font-size:12px;line-height:1.5;color:#9fb2d8}
+  #legend{bottom:18px;left:18px;padding:12px 14px;font-size:12px;max-width:230px}
+  #legend b{display:block;margin-bottom:8px;color:#9fb2d8;font-weight:600;letter-spacing:.4px}
+  .lg{display:flex;align-items:center;gap:8px;margin:4px 0;cursor:default}
+  .dot{width:11px;height:11px;border-radius:50%;box-shadow:0 0 8px currentColor}
+  #info{top:18px;right:18px;padding:16px 18px;max-width:300px;display:none}
+  #info h2{margin:0 0 4px;font-size:16px}
+  #info .grp{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+  #info p{margin:0;font-size:13px;line-height:1.55;color:#c7d4ee}
+  #hint{bottom:18px;right:18px;padding:9px 13px;font-size:11px;color:#8aa0c8}
+  @media (max-width:720px){
+    #title{top:10px;left:10px;right:10px;max-width:none;padding:10px 12px}
+    #title p{display:none}
+    #legend{display:none}
+    #hint{display:none}
+    #info{top:auto;bottom:10px;left:10px;right:10px;max-width:none}
+  }
+  #err{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:40px;font-size:14px;color:#9fb2d8}
+</style>
+</head>
+<body>
+<div id="graph"></div>
+<div id="title" class="panel">
+  <h1><span>AEGIS</span> ICS — Neural Map</h1>
+  <p>Every node is a part of the gateway; every synapse is a real relationship — telemetry, trust, detection, money, defense. Drag to orbit · scroll to zoom · click a neuron.</p>
+</div>
+<div id="legend" class="panel"><b>SUBSYSTEMS</b><div id="legendItems"></div></div>
+<div id="info" class="panel"><h2 id="iName"></h2><div class="grp" id="iGrp"></div><p id="iDesc"></p></div>
+<div id="hint" class="panel">Pulses = signals flowing between subsystems</div>
+<div id="err">Couldn't load the 3D engine. Open this file with an internet connection (it pulls the graphics library from a CDN).</div>
+
+<script src="https://unpkg.com/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
+<script>
+const GROUPS = {
+  core:   {name:"Gateway Core",        color:"#22d3ee"},
+  enroll: {name:"Zero-Touch Enrollment",color:"#34d399"},
+  detect: {name:"Detection Brain (ML)", color:"#a78bfa"},
+  safety: {name:"Safety Enforcement",   color:"#f43f5e"},
+  money:  {name:"Financial Engine",     color:"#fbbf24"},
+  red:    {name:"Red-Team Drill",       color:"#fb7185"},
+  report: {name:"Reporting",            color:"#60a5fa"},
+  ui:     {name:"SCADA Interface",      color:"#38bdf8"},
+  hw:     {name:"Firmware / Hardware",  color:"#f97316"},
+  sec:    {name:"Security",             color:"#e879f9"},
+};
+const N = (id,group,label,desc,size=5)=>({id,group,label,desc,size});
+const nodes = [
+  N("app","core","Flask Gateway (app.py)","The brain stem — ingests signed telemetry, routes it to detection, safety, money and the UI.",9),
+  N("main","core","Desktop Shell","PyWebView wrapper that ships the whole thing as one .exe a non-engineer can run.",5),
+  N("database","core","SQLite WAL DB","Append-only audit trail + telemetry store, bound to spatial coordinates.",6),
+  N("serial","core","Serial Gateway","Reads frames from the hardware bus (USB-CDC / RS-485) into the software.",6),
+  N("version","core","Version","Single source of truth for the release version.",3),
+
+  N("protocol","enroll","Protocol v1","Signed HELLO/TEL/CMD frames with boot+sequence replay protection.",6),
+  N("enrollment","enroll","X25519 Enrollment","Derives a unique secret handshake per device (X25519 + HKDF).",6),
+  N("registry","enroll","Device Registry","Pending → approved. One-click operator approval of new slaves.",6),
+  N("simulator","enroll","N-Slave Simulator","Software stand-in for the ESP32 bus used in testing & drills.",5),
+  N("bootstrap","enroll","First-Run Setup","Forces an admin password on first launch (no default credential).",4),
+
+  N("detection","detect","Attack Classifier","The detection brain — names the attack (FDI / Stuxnet / drift / fault) from telemetry.",8),
+  N("train_clf","detect","Classifier Trainer","Offline training pipeline for the attack-type model.",4),
+  N("trust","detect","Trust Engine","Continuous 4-factor trust score that decides when to quarantine.",7),
+  N("rf","detect","Anomaly RF","Random-Forest that flags abnormal multi-sensor behavior.",6),
+
+  N("safety","safety","Safety Enforcer","Deterministic thermodynamic interlocks — blocks unsafe setpoints.",7),
+  N("nspn","safety","Neural Safety Policy","6D neural net judging whether a command is physically safe.",6),
+
+  N("financials","money","Device Profiles","Per-device dollar values entered at approval.",5),
+  N("loss","money","Loss Engine","Live money: actual / projected / prevented loss + time-to-fix.",8),
+  N("attacks","money","Attack Catalog","MITRE ATT&CK + NIST controls + mitigations per attack type.",5),
+
+  N("redteam","red","Red-Team Engine","Localhost drill engine that stages real attacks against the running software.",6),
+  N("campaign","red","8-Stage Campaign","Perimeter + physical attack sequence; records live defense & cost.",5),
+  N("usb","red","USB Runner","Portable drill a non-engineer runs from a USB stick.",4),
+
+  N("reporting","report","NIST SP 800 Report","One-click incident report — ML-named attack, cost, mitigation.",7),
+  N("analytics","report","FAIR Analytics","Quantitative risk + Monte-Carlo loss distribution.",5),
+
+  N("dashboard","ui","SCADA Dashboard","Real-time control-room screen — 7 stations, live waveforms.",7),
+  N("aggregate","ui","Aggregate View","Fused radar/bar of all slaves — attacked nodes bulge out of envelope.",5),
+  N("xp","ui","Windows XP Theme","Classic Luna interface replacing the dark terminal look.",4),
+
+  N("master","hw","ESP32 Master","Dual-core gateway MCU — Modbus/ADC + crypto.",7),
+  N("slave","hw","ESP32 Slaves","Field sensor nodes: temp, pressure, vibration, RPM, current.",6),
+  N("companion","hw","Companion Supervisor","Out-of-band watchdog ESP32 that resets a frozen main MCU.",5),
+  N("relay","hw","Optocoupler Relay","The physical kill-switch — de-energizes a dangerous machine.",5),
+  N("rs485","hw","RS-485 Bus","Half-duplex Modbus bus linking slaves to the master.",4),
+  N("lora","hw","LoRa 433 MHz","Wireless link for legacy non-PLC machinery (Mode 2).",4),
+
+  N("security","sec","HMAC / Gateway Token","Signs every frame; token-gates machine ingestion.",6),
+  N("ratelimit","sec","Rate Limiter","Throttles logins (10/min) and the API against brute-force.",4),
+  N("csp","sec","CSRF / CSP","Web-layer hardening for the operator console.",4),
+];
+const L = (s,t)=>({source:s,target:t});
+const links = [
+  L("slave","rs485"),L("rs485","master"),L("master","serial"),L("serial","app"),
+  L("slave","lora"),L("lora","master"),L("companion","master"),L("master","relay"),
+  L("main","app"),L("version","app"),L("app","database"),L("app","bootstrap"),
+  L("app","protocol"),L("protocol","enrollment"),L("app","registry"),L("registry","enrollment"),
+  L("registry","simulator"),L("protocol","serial"),
+  L("app","security"),L("security","csp"),L("app","ratelimit"),L("security","protocol"),
+  L("app","trust"),L("app","rf"),L("app","detection"),L("detection","train_clf"),L("rf","detection"),
+  L("trust","safety"),L("safety","nspn"),L("rf","trust"),L("security","trust"),
+  L("detection","loss"),L("trust","loss"),L("loss","financials"),L("loss","attacks"),
+  L("financials","registry"),L("detection","attacks"),
+  L("loss","reporting"),L("detection","reporting"),L("reporting","analytics"),L("database","reporting"),
+  L("app","dashboard"),L("dashboard","aggregate"),L("dashboard","xp"),L("analytics","dashboard"),L("loss","dashboard"),
+  L("redteam","app"),L("redteam","campaign"),L("usb","redteam"),L("campaign","loss"),L("campaign","detection"),
+  L("trust","relay"),L("safety","relay"),L("safety","serial"),
+];
+
+const el = id => document.getElementById(id);
+const li = el("legendItems");
+Object.values(GROUPS).forEach(g=>{
+  const d=document.createElement("div");d.className="lg";
+  d.innerHTML=`<span class="dot" style="color:${g.color};background:${g.color}"></span><span>${g.name}</span>`;
+  li.appendChild(d);
+});
+
+if (typeof ForceGraph3D === "undefined") { el("err").style.display="grid"; }
+else {
+  const Graph = ForceGraph3D()(el("graph"))
+    .backgroundColor("#0b0d0c")
+    .graphData({nodes, links})
+    .nodeId("id")
+    .nodeVal(n=>n.size)
+    .nodeColor(n=>GROUPS[n.group].color)
+    .nodeOpacity(0.95)
+    .nodeResolution(16)
+    .nodeLabel(n=>`<div style="font:600 13px Segoe UI;color:${GROUPS[n.group].color}">${n.label}</div>`)
+    .linkColor(()=> "rgba(130,170,255,0.22)")
+    .linkWidth(0.6)
+    .linkDirectionalParticles(2)
+    .linkDirectionalParticleSpeed(0.006)
+    .linkDirectionalParticleWidth(1.6)
+    .linkDirectionalParticleColor(()=> "#bcd4ff")
+    .onNodeClick(n=>{
+      el("info").style.display="block";
+      el("iName").textContent=n.label;
+      el("iName").style.color=GROUPS[n.group].color;
+      el("iGrp").textContent=GROUPS[n.group].name;
+      el("iGrp").style.color=GROUPS[n.group].color;
+      el("iDesc").textContent=n.desc;
+      const d={x:n.x,y:n.y,z:n.z}, r=1+120/Math.hypot(n.x,n.y,n.z||1);
+      Graph.cameraPosition({x:n.x*r,y:n.y*r,z:n.z*r}, n, 900);
+    })
+    .onBackgroundClick(()=> el("info").style.display="none");
+
+  // spread the brain out a little
+  Graph.d3Force("charge").strength(-130);
+  Graph.d3Force("link").distance(42);
+
+  // gentle auto-rotation of the whole mind
+  let auto=true;
+  Graph.scene(); // ensure scene built
+  el("graph").addEventListener("pointerdown",()=>auto=false);
+  (function spin(){ if(auto){ const s=Graph.scene(); s.rotation.y+=0.0012; } requestAnimationFrame(spin); })();
+
+  window.addEventListener("resize",()=>Graph.width(innerWidth).height(innerHeight));
+}
+</script>
+</body>
+</html>

@@ -1077,3 +1077,56 @@ a, button, .unit, .switch { -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: auto; }
   .rvl { opacity: 1; transform: none; }
 }
+
+/* ---------- neural map embed ---------- */
+
+.neural-stage {
+  position: relative;
+  height: clamp(380px, 68vh, 640px);
+  background: #0b0d0c;
+  border-bottom: 1px solid var(--rule-2);
+}
+.neural-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.neural-launch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  background:
+    radial-gradient(ellipse at center, rgba(242,163,60,.07), transparent 60%),
+    var(--panel);
+  border: 0;
+  color: var(--ink-2);
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: color .12s linear;
+}
+.neural-launch:hover { color: var(--amber); }
+.neural-launch-ring {
+  width: 54px; height: 54px;
+  border: 1px solid var(--amber-dim);
+  border-radius: 50%;
+  position: relative;
+}
+.neural-launch-ring::after {
+  content: "";
+  position: absolute; inset: 0; margin: auto;
+  width: 0; height: 0;
+  border-left: 12px solid var(--amber);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  transform: translateX(2px);
+}
+.neural-launch-label { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+.neural-launch-sub { font-size: 10.5px; letter-spacing: .04em; color: var(--ink-4); padding: 0 16px; text-align: center; }
+.neural-open:hover { color: var(--amber); }
